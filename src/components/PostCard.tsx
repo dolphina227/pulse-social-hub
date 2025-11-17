@@ -32,6 +32,17 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
   const { address } = useAccount();
   const [repostModalOpen, setRepostModalOpen] = useState(false);
 
+  // Parse media from content
+  const parseContent = (content: string) => {
+    const mediaRegex = /\[media:(https?:\/\/[^\]]+)\]/g;
+    const matches = [...content.matchAll(mediaRegex)];
+    const mediaUrls = matches.map(match => match[1]);
+    const textContent = content.replace(mediaRegex, '').trim();
+    return { textContent, mediaUrls };
+  };
+
+  const { textContent, mediaUrls } = parseContent(post.content);
+
   const { data: hasLiked, refetch: refetchLiked } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
     abi: PULSECHAT_ABI as any,
@@ -92,9 +103,26 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
             )}
 
             <Link to={`/post/${post.id}`}>
-              <p className="text-foreground whitespace-pre-wrap break-words mb-3">
-                {post.content}
-              </p>
+              {textContent && (
+                <p className="text-foreground whitespace-pre-wrap break-words mb-3">
+                  {textContent}
+                </p>
+              )}
+              {mediaUrls.length > 0 && (
+                <div className="mb-3 rounded-xl overflow-hidden border border-border/50">
+                  {mediaUrls.map((url, index) => (
+                    <img
+                      key={index}
+                      src={url}
+                      alt="Post media"
+                      className="w-full h-auto object-cover"
+                      onError={(e) => {
+                        e.currentTarget.style.display = 'none';
+                      }}
+                    />
+                  ))}
+                </div>
+              )}
             </Link>
 
             <div className="flex items-center gap-6 text-muted-foreground">
