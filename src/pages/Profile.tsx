@@ -7,13 +7,12 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
-import { Calendar, MessageSquare, MessageCircle, Heart, Edit, AlertCircle, Upload, Repeat2 } from 'lucide-react';
+import { Calendar, MessageSquare, MessageCircle, Heart, Edit, AlertCircle, Upload, Repeat2, Info } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { toast } from 'sonner';
 import { uploadImage, validateImageFile } from '@/lib/storage';
 import { PostCard } from '@/components/PostCard';
 import { useRepost } from '@/hooks/useRepost';
-import { SetUsernameModal } from '@/components/SetUsernameModal';
 
 export default function Profile() {
   const { address: connectedAddress, isConnected } = useAccount();
@@ -26,7 +25,7 @@ export default function Profile() {
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [showSetupModal, setShowSetupModal] = useState(false);
+  const [checkingUsername, setCheckingUsername] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { getRepostedPosts } = useRepost(0n);
@@ -59,13 +58,8 @@ export default function Profile() {
       setName(profile[0] || '');
       setBio(profile[1] || '');
       setAvatar(profile[2] || '');
-      
-      // Show setup modal if user is viewing own profile and hasn't set a name
-      if (isOwnProfile && !profile[0] && isConnected) {
-        setShowSetupModal(true);
-      }
     }
-  }, [profile, isOwnProfile, isConnected]);
+  }, [profile]);
 
   // Get UI-only reposted post IDs
   const uiRepostedPostIds = isOwnProfile ? getRepostedPosts().map(r => r.postId) : [];
@@ -87,32 +81,68 @@ export default function Profile() {
     }
   };
 
-  const handleSaveProfile = () => {
-    if (!name.trim()) return toast.error('Name required');
+  const handleSaveProfile = async () => {
+    if (!name.trim()) {
+      toast.error('Username is required');
+      return;
+    }
 
-    writeContract({
-      address: PULSECHAT_CONTRACT_ADDRESS,
-      abi: PULSECHAT_ABI,
-      functionName: 'setProfile',
-      args: [name, bio, avatar],
-    } as any, {
-      onSuccess: () => {
-        toast.success('Profile updated!');
-        setIsEditing(false);
-      },
-      onError: (error) => {
-        toast.error('Failed to update: ' + error.message);
-      },
-    });
+    // Check if username is already taken (simple client-side check)
+    setCheckingUsername(true);
+    try {
+      // Store username check in localStorage to track used usernames
+      const usedUsernames = JSON.parse(localStorage.getItem('used_usernames') || '{}');
+      const originalName = profile?.[0] || '';
+      
+      // Check if username is taken by someone else
+      if (usedUsernames[name.toLowerCase()] && 
+          usedUsernames[name.toLowerCase()] !== profileAddress?.toLowerCase() &&
+          name.toLowerCase() !== originalName.toLowerCase()) {
+        toast.error('This username appears to be taken. Please choose another one.');
+        setCheckingUsername(false);
+        return;
+      }
+
+      writeContract({
+        address: PULSECHAT_CONTRACT_ADDRESS,
+        abi: PULSECHAT_ABI,
+        functionName: 'setProfile',
+        args: [name, bio, avatar],
+      } as any, {
+        onSuccess: () => {
+          // Update used usernames cache
+          const updatedUsernames = { ...usedUsernames };
+          if (originalName) {
+            delete updatedUsernames[originalName.toLowerCase()];
+          }
+          updatedUsernames[name.toLowerCase()] = profileAddress?.toLowerCase();
+          localStorage.setItem('used_usernames', JSON.stringify(updatedUsernames));
+          
+          toast.success('Profile updated successfully!');
+          setIsEditing(false);
+          setCheckingUsername(false);
+        },
+        onError: (error) => {
+          toast.error('Failed to update: ' + error.message);
+          setCheckingUsername(false);
+        },
+      });
+    } catch (error) {
+      setCheckingUsername(false);
+    }
   };
+
+  // Track usernames when profile loads
+  useEffect(() => {
+    if (profile && profile[0]) {
+      const usedUsernames = JSON.parse(localStorage.getItem('used_usernames') || '{}');
+      usedUsernames[profile[0].toLowerCase()] = profileAddress?.toLowerCase();
+      localStorage.setItem('used_usernames', JSON.stringify(usedUsernames));
+    }
+  }, [profile, profileAddress]);
 
   const refetchPosts = () => {
     // Trigger refetch if needed
-  };
-
-  const handleSetupComplete = () => {
-    // Refetch profile data after setup
-    window.location.reload();
   };
 
   if (!isConnected) {
@@ -131,15 +161,7 @@ export default function Profile() {
   const createdAt = profile?.[3] ? Number(profile[3]) : 0;
 
   return (
-    <>
-      {/* Setup Username Modal for new users */}
-      <SetUsernameModal
-        open={showSetupModal}
-        onOpenChange={setShowSetupModal}
-        onComplete={handleSetupComplete}
-      />
-      
-      <div className="max-w-4xl mx-auto space-y-6 pb-20 md:pb-6 px-4 md:px-0 pt-20 lg:pt-6">
+    <div className="max-w-4xl mx-auto space-y-6 pb-20 md:pb-6 px-4 md:px-0 pt-20 lg:pt-6">
       <Card className="glass-effect">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-6">
@@ -176,11 +198,54 @@ export default function Profile() {
             <div className="flex-1 space-y-4">
               {isEditing ? (
                 <div className="space-y-3">
-                  <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
-                  <Textarea placeholder="Bio" value={bio} onChange={(e) => setBio(e.target.value)} />
+                  <Alert>
+                    <Info className="h-4 w-4" />
+                    <AlertDescription>
+                      Choose a unique username. Usernames that are already taken cannot be used.
+                    </AlertDescription>
+                  </Alert>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Username *</label>
+                    <Input 
+                      placeholder="Enter username" 
+                      value={name} 
+                      onChange={(e) => setName(e.target.value)}
+                      maxLength={50}
+                    />
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <label className="text-sm font-medium">Bio</label>
+                    <Textarea 
+                      placeholder="Tell us about yourself..." 
+                      value={bio} 
+                      onChange={(e) => setBio(e.target.value)}
+                      maxLength={160}
+                      rows={3}
+                    />
+                    <p className="text-xs text-muted-foreground">{bio.length}/160 characters</p>
+                  </div>
+                  
                   <div className="flex gap-2">
-                    <Button variant="gradient" onClick={handleSaveProfile} disabled={isPending}>Save</Button>
-                    <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>
+                    <Button 
+                      variant="gradient" 
+                      onClick={handleSaveProfile} 
+                      disabled={isPending || checkingUsername || !name.trim()}
+                    >
+                      {isPending || checkingUsername ? 'Saving...' : 'Save Profile'}
+                    </Button>
+                    <Button 
+                      variant="outline" 
+                      onClick={() => {
+                        setIsEditing(false);
+                        setName(profile?.[0] || '');
+                        setBio(profile?.[1] || '');
+                        setAvatar(profile?.[2] || '');
+                      }}
+                    >
+                      Cancel
+                    </Button>
                   </div>
                 </div>
               ) : (
@@ -280,7 +345,6 @@ export default function Profile() {
           </Card>
         )}
       </div>
-      </div>
-    </>
+    </div>
   );
 }
