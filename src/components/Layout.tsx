@@ -26,10 +26,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="min-h-screen bg-background">
       <div className="container mx-auto flex">
         {/* Left Sidebar - Desktop */}
-        <aside className="hidden lg:flex lg:flex-col lg:w-64 xl:w-72 h-screen sticky top-0 border-r border-border/50 px-4 py-6">
-          <Link to="/" className="flex items-center gap-2 mb-8 px-3">
-            <img src={pulsechatLogo} alt="ProveChat" className="h-10 w-10" />
-            <h1 className="text-xl font-bold gradient-pulse-text">ProveChat</h1>
+        <aside className="hidden lg:flex lg:flex-col lg:w-60 xl:w-64 h-screen sticky top-0 border-r border-border/50 px-3 py-6">
+          <Link to="/" className="flex items-center gap-2 mb-6 px-2">
+            <img src={pulsechatLogo} alt="ProveChat" className="h-9 w-9" />
+            <h1 className="text-lg font-bold gradient-pulse-text">ProveChat</h1>
           </Link>
 
           <nav className="flex-1 space-y-1">
@@ -42,13 +42,13 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    'flex items-center gap-4 px-4 py-3 rounded-full text-lg font-medium transition-all group',
+                    'flex items-center gap-3 px-3 py-2.5 rounded-full text-base font-medium transition-all group',
                     isActive
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground hover:bg-muted/50'
                   )}
                 >
-                  <Icon className={cn("h-6 w-6 transition-transform group-hover:scale-110", isActive && "text-primary")} />
+                  <Icon className={cn("h-5 w-5 transition-transform group-hover:scale-110", isActive && "text-primary")} />
                   <span>{item.name}</span>
                 </Link>
               );
@@ -57,8 +57,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           <Button 
             variant="gradient" 
-            size="lg" 
-            className="w-full rounded-full mb-4 text-base h-12 font-semibold"
+            size="default" 
+            className="w-full rounded-full mb-4 text-base h-11 font-semibold"
             onClick={() => setIsPostModalOpen(true)}
           >
             <Plus className="h-5 w-5 mr-2" />
