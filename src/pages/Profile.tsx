@@ -7,9 +7,10 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
-import { Calendar, MessageSquare, Heart, Edit, AlertCircle } from 'lucide-react';
+import { Calendar, MessageSquare, Heart, Edit, AlertCircle, Upload } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { toast } from 'sonner';
+import { uploadImage, validateImageFile } from '@/lib/storage';
 
 export default function Profile() {
   const { address: connectedAddress, isConnected } = useAccount();
@@ -57,6 +58,23 @@ export default function Profile() {
     }
   }, [profile]);
 
+  const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    try {
+      validateImageFile(file);
+      setUploading(true);
+      const url = await uploadImage(file);
+      setAvatar(url);
+      toast.success('Image uploaded!');
+    } catch (error: any) {
+      toast.error(error.message);
+    } finally {
+      setUploading(false);
+    }
+  };
+
   const handleSaveProfile = () => {
     if (!name.trim()) return toast.error('Name required');
 
@@ -65,10 +83,15 @@ export default function Profile() {
       abi: PULSECHAT_ABI,
       functionName: 'setProfile',
       args: [name, bio, avatar],
-    } as any);
-
-    setIsEditing(false);
-    toast.success('Profile updated!');
+    } as any, {
+      onSuccess: () => {
+        toast.success('Profile updated!');
+        setIsEditing(false);
+      },
+      onError: (error) => {
+        toast.error('Failed to update: ' + error.message);
+      },
+    });
   };
 
   if (!isConnected) {
@@ -91,8 +114,34 @@ export default function Profile() {
       <Card className="glass-effect">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-6">
-            <div className="w-24 h-24 rounded-full bg-gradient-pulse flex items-center justify-center">
-              <span className="text-3xl font-bold text-white">{displayName.slice(0, 2).toUpperCase()}</span>
+            <div className="relative group">
+              {avatar ? (
+                <img src={avatar} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
+              ) : (
+                <div className="w-24 h-24 rounded-full bg-gradient-pulse flex items-center justify-center">
+                  <span className="text-3xl font-bold text-white">{displayName.slice(0, 2).toUpperCase()}</span>
+                </div>
+              )}
+              {isEditing && (
+                <>
+                  <input
+                    ref={fileInputRef}
+                    type="file"
+                    accept="image/*"
+                    onChange={handleFileUpload}
+                    className="hidden"
+                  />
+                  <Button
+                    variant="secondary"
+                    size="sm"
+                    className="absolute bottom-0 right-0 rounded-full h-8 w-8 p-0"
+                    onClick={() => fileInputRef.current?.click()}
+                    disabled={uploading}
+                  >
+                    <Upload className="h-4 w-4" />
+                  </Button>
+                </>
+              )}
             </div>
 
             <div className="flex-1 space-y-4">
@@ -100,7 +149,6 @@ export default function Profile() {
                 <div className="space-y-3">
                   <Input placeholder="Name" value={name} onChange={(e) => setName(e.target.value)} />
                   <Textarea placeholder="Bio" value={bio} onChange={(e) => setBio(e.target.value)} />
-                  <Input placeholder="Avatar URL" value={avatar} onChange={(e) => setAvatar(e.target.value)} />
                   <div className="flex gap-2">
                     <Button variant="gradient" onClick={handleSaveProfile} disabled={isPending}>Save</Button>
                     <Button variant="outline" onClick={() => setIsEditing(false)}>Cancel</Button>

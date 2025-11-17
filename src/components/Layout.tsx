@@ -3,6 +3,7 @@ import { WalletConnect } from './WalletConnect';
 import { Home, Search, MessageSquare, Trophy, User, Plus } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
+import pulsechatLogo from '@/assets/pulsechat-logo.png';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -21,9 +22,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Left Sidebar - Desktop */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 xl:w-72 h-screen sticky top-0 border-r border-border/50 px-4 py-6">
           <Link to="/" className="flex items-center gap-3 mb-8 px-3">
-            <div className="h-10 w-10 rounded-full bg-gradient-pulse flex items-center justify-center shadow-glow">
-              <span className="text-xl font-bold text-white">P</span>
-            </div>
+            <img src={pulsechatLogo} alt="PULSECHAT" className="h-10 w-10" />
             <h1 className="text-2xl font-bold gradient-pulse-text">PULSECHAT</h1>
           </Link>
 
