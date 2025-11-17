@@ -70,7 +70,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </aside>
 
-        <main className="flex-1 min-h-screen border-r border-border/50 pb-20 lg:pb-0">
+        <main className="flex-1 min-h-screen border-r border-border/50 pb-20 lg:pb-0 lg:pl-6">
           {children}
         </main>
 
