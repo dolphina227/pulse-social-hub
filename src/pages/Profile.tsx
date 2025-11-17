@@ -21,6 +21,10 @@ export default function Profile() {
   const [name, setName] = useState('');
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
+  const [uploading, setUploading] = useState(false);
+  const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [plsModalOpen, setPlsModalOpen] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { writeContract, isPending } = useWriteContract();
 
