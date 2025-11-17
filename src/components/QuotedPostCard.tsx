@@ -39,7 +39,19 @@ export function QuotedPostCard({ postId }: QuotedPostCardProps) {
   };
 
   const { textContent, mediaUrls } = parseContent(originalPost[2]);
-  const authorName = originalAuthorProfile?.[0] || formatAddress(originalPost[1]);
+  
+  // Parse profile data
+  const username = originalAuthorProfile?.[0] || '';
+  let displayName = '';
+  try {
+    const bioField = originalAuthorProfile?.[1] || '';
+    const parsed = JSON.parse(bioField);
+    displayName = parsed.displayName || '';
+  } catch {
+    displayName = '';
+  }
+  
+  const authorDisplayText = displayName || username || formatAddress(originalPost[1]);
   const authorAvatar = originalAuthorProfile?.[2];
 
   return (
@@ -55,9 +67,9 @@ export function QuotedPostCard({ postId }: QuotedPostCardProps) {
 
         <div className="flex-1 min-w-0">
           <div className="flex items-center gap-1.5 mb-1">
-            <p className="font-semibold text-sm">{authorName}</p>
+            <p className="font-semibold text-sm">{authorDisplayText}</p>
             <span className="text-muted-foreground text-xs">
-              @{formatAddress(originalPost[1])}
+              @{username || formatAddress(originalPost[1])}
             </span>
             <span className="text-muted-foreground text-xs">·</span>
             <span className="text-muted-foreground text-xs">
