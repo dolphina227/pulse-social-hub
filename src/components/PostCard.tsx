@@ -37,12 +37,12 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
   const [repostOptionsOpen, setRepostOptionsOpen] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [tipModalOpen, setTipModalOpen] = useState(false);
-  const [displayLikeCount, setDisplayLikeCount] = useState(post.likeCount);
 
-  const { isLiked, toggleLike } = useLikePost(post.id);
+  const { isLiked, toggleLike, getPostLikeCount } = useLikePost(post.id);
   const { isReposted, toggleRepost, getPostRepostCount } = useRepost(post.id);
   
-  // Combine on-chain repost count with UI-only repost count
+  // Combine on-chain counts with UI-only counts
+  const totalLikeCount = post.likeCount + getPostLikeCount();
   const totalRepostCount = post.repostCount + getPostRepostCount();
 
   // Parse media from content
@@ -57,8 +57,7 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
   const { textContent, mediaUrls } = parseContent(post.content);
 
   const handleLike = () => {
-    const newCount = toggleLike(displayLikeCount);
-    setDisplayLikeCount(newCount);
+    toggleLike();
     
     if (isLiked) {
       toast.success('Removed like');
@@ -197,7 +196,7 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
                 title={isLiked ? "Unlike this post" : "Like this post"}
               >
                 <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
-                <span className="text-sm">{displayLikeCount.toString()}</span>
+                <span className="text-sm">{totalLikeCount > 0 ? totalLikeCount.toString() : ''}</span>
               </Button>
 
               <Button
