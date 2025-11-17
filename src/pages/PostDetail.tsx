@@ -2,20 +2,18 @@ import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 import { AlertCircle, ArrowLeft, Heart, MessageCircle, Repeat2 } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { toast } from 'sonner';
-import { EmojiPicker } from '@/components/EmojiPicker';
 import { RepostModal } from '@/components/RepostModal';
+import { CommentComposer } from '@/components/CommentComposer';
 import { cn } from '@/lib/utils';
 
 export default function PostDetail() {
   const { id } = useParams();
   const { address, isConnected } = useAccount();
-  const [commentContent, setCommentContent] = useState('');
   const [repostModalOpen, setRepostModalOpen] = useState(false);
 
   const postId = id ? BigInt(id) : 0n;
@@ -34,13 +32,7 @@ export default function PostDetail() {
     args: [postId, 100n],
   });
 
-  const { data: feeAmount } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'feeAmount',
-  });
-
-  const { writeContract, isPending } = useWriteContract();
+  const { writeContract, isPending: isLiking } = useWriteContract();
 
   const { data: hasLiked, refetch: refetchLiked } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
@@ -50,33 +42,12 @@ export default function PostDetail() {
     query: { enabled: !!address },
   }) as { data: boolean; refetch: () => void };
 
-  const handleComment = () => {
-    if (!commentContent.trim()) {
-      toast.error('Please enter a comment');
+  const handleLike = () => {
+    if (hasLiked) {
+      toast.error('You already liked this post');
       return;
     }
 
-    writeContract({
-      address: PULSECHAT_CONTRACT_ADDRESS,
-      abi: PULSECHAT_ABI,
-      functionName: 'commentOnPost',
-      args: [postId, commentContent],
-    } as any, {
-      onSuccess: () => {
-        toast.success('Comment posted!');
-        setCommentContent('');
-        setTimeout(() => {
-          refetchComments();
-          refetchPost();
-        }, 2000);
-      },
-      onError: (error) => {
-        toast.error('Failed to comment: ' + error.message);
-      },
-    });
-  };
-
-  const handleLike = () => {
     writeContract({
       address: PULSECHAT_CONTRACT_ADDRESS,
       abi: PULSECHAT_ABI,
@@ -84,19 +55,23 @@ export default function PostDetail() {
       args: [postId],
     } as any, {
       onSuccess: () => {
-        toast.success('Post liked!');
+        toast.success('Post liked! (Free on-chain interaction)');
         setTimeout(() => {
           refetchLiked();
           refetchPost();
         }, 2000);
       },
       onError: (error) => {
+        console.error('Like error:', error);
         toast.error('Failed to like: ' + error.message);
       },
     });
   };
 
-  const feeHuman = feeAmount ? (Number(feeAmount) / 1e6).toFixed(2) : '0.01';
+  const handleCommentSuccess = () => {
+    refetchComments();
+    refetchPost();
+  };
 
   if (!isConnected) {
     return (
@@ -162,26 +137,28 @@ export default function PostDetail() {
               variant="ghost"
               size="sm"
               className={cn(
-                "gap-2 hover:text-pulse-magenta",
+                "gap-2 hover:text-pulse-magenta transition-colors",
                 hasLiked && "text-pulse-magenta"
               )}
               onClick={handleLike}
-              disabled={hasLiked}
+              disabled={isLiking}
+              title={hasLiked ? "You already liked this post" : "Like this post (free on-chain interaction)"}
             >
               <Heart className={cn("h-5 w-5", hasLiked && "fill-current")} />
               <span>{post[4]?.toString() || '0'}</span>
             </Button>
 
-            <div className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5 text-muted-foreground" />
+            <div className="flex items-center gap-2 text-muted-foreground">
+              <MessageCircle className="h-5 w-5" />
               <span>{post[5]?.toString() || '0'}</span>
             </div>
 
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 hover:text-pulse-blue"
+              className="gap-2 hover:text-pulse-blue transition-colors"
               onClick={() => setRepostModalOpen(true)}
+              title="Repost this post"
             >
               <Repeat2 className="h-5 w-5" />
               <span>{post[6]?.toString() || '0'}</span>
@@ -189,34 +166,9 @@ export default function PostDetail() {
           </div>
         </div>
 
-        <div className="border-b border-border/50 p-4">
-          <div className="flex gap-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
-            <div className="flex-1">
-              <Textarea
-                value={commentContent}
-                onChange={(e) => setCommentContent(e.target.value)}
-                placeholder="Post your reply..."
-                className="min-h-[100px] resize-none border-0 focus-visible:ring-0 p-0"
-              />
-              <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
-                <EmojiPicker onEmojiSelect={(emoji) => setCommentContent(commentContent + emoji)} />
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">Fee: {feeHuman} USDC</span>
-                  <Button
-                    onClick={handleComment}
-                    disabled={isPending || !commentContent.trim()}
-                    variant="gradient"
-                    size="lg"
-                    className="rounded-full px-6"
-                  >
-                    {isPending ? 'Replying...' : 'Reply'}
-                  </Button>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
+
+        <CommentComposer postId={postId} onSuccess={handleCommentSuccess} />
+
 
         <div>
           {comments && comments.length > 0 ? (
