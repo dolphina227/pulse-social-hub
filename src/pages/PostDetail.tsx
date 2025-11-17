@@ -37,17 +37,18 @@ export default function PostDetail() {
   });
 
   const [displayLikeCount, setDisplayLikeCount] = useState(0);
-  const [displayRepostCount, setDisplayRepostCount] = useState(0);
   const { isLiked, toggleLike } = useLikePost(postId);
-  const { isReposted, toggleRepost } = useRepost(postId);
+  const { isReposted, toggleRepost, getPostRepostCount } = useRepost(postId);
 
   // Update display counts when post data loads
   useEffect(() => {
     if (post) {
       setDisplayLikeCount(Number(post[4] || 0));
-      setDisplayRepostCount(Number(post[6] || 0));
     }
   }, [post]);
+  
+  // Calculate total repost count (on-chain + UI-only)
+  const totalRepostCount = (post ? Number(post[6] || 0) : 0) + getPostRepostCount();
 
   const handleLike = () => {
     const currentCount = Number(post?.[4] || 0);
@@ -62,9 +63,7 @@ export default function PostDetail() {
   };
 
   const handleRepost = () => {
-    const currentCount = Number(post?.[6] || 0);
-    const newCount = toggleRepost(currentCount);
-    setDisplayRepostCount(newCount);
+    toggleRepost();
     
     if (isReposted) {
       toast.success('Removed from your profile');
@@ -168,7 +167,7 @@ export default function PostDetail() {
               title={isReposted ? "Reposted" : "Repost or Quote"}
             >
               <Repeat2 className="h-5 w-5" />
-              <span>{displayRepostCount}</span>
+              <span>{totalRepostCount}</span>
             </Button>
           </div>
         </div>

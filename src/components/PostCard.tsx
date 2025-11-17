@@ -38,10 +38,12 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [tipModalOpen, setTipModalOpen] = useState(false);
   const [displayLikeCount, setDisplayLikeCount] = useState(post.likeCount);
-  const [displayRepostCount, setDisplayRepostCount] = useState(post.repostCount);
 
   const { isLiked, toggleLike } = useLikePost(post.id);
-  const { isReposted, toggleRepost } = useRepost(post.id);
+  const { isReposted, toggleRepost, getPostRepostCount } = useRepost(post.id);
+  
+  // Combine on-chain repost count with UI-only repost count
+  const totalRepostCount = post.repostCount + getPostRepostCount();
 
   // Parse media from content
   const parseContent = (content: string) => {
@@ -66,8 +68,7 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
   };
 
   const handleRepost = () => {
-    const newCount = toggleRepost(displayRepostCount);
-    setDisplayRepostCount(newCount);
+    toggleRepost();
     
     if (isReposted) {
       toast.success('Removed from your feed');
@@ -182,7 +183,7 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
                 title={isReposted ? "Reposted" : "Repost this post"}
               >
                 <Repeat2 className="h-4 w-4" />
-                <span className="text-sm">{displayRepostCount.toString()}</span>
+                <span className="text-sm">{totalRepostCount > 0 ? totalRepostCount.toString() : ''}</span>
               </Button>
 
               <Button
