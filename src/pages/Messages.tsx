@@ -9,6 +9,7 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 import { Send, AlertCircle } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
+import { parseProfile } from '@/lib/utils/profile';
 import { toast } from 'sonner';
 
 export default function Messages() {
@@ -108,8 +109,8 @@ export default function Messages() {
                     args: [convo.address as `0x${string}`],
                   }) as { data: any };
 
-                  const profileName = partnerProfile?.[0] || '';
-                  const profileAvatar = partnerProfile?.[2] || '';
+                  const { username, displayName, avatar: profileAvatar } = parseProfile(partnerProfile);
+                  const profileDisplayText = displayName || username || formatAddress(convo.address);
 
                   return (
                     <button
@@ -130,7 +131,10 @@ export default function Messages() {
                         )}
                         <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm truncate">
-                            {profileName || formatAddress(convo.address)}
+                            {profileDisplayText}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            @{username || formatAddress(convo.address)}
                           </p>
                           <p className="text-xs text-muted-foreground truncate">
                             {convo.lastMessage.content.slice(0, 30)}...

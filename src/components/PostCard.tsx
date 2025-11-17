@@ -1,6 +1,7 @@
 import { Link } from 'react-router-dom';
 import { Heart, MessageCircle, Repeat2, DollarSign } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
+import { parseProfile } from '@/lib/utils/profile';
 import { Button } from './ui/button';
 import { useState } from 'react';
 import { toast } from 'sonner';
@@ -11,6 +12,8 @@ import { QuotedPostCard } from './QuotedPostCard';
 import { cn } from '@/lib/utils';
 import { useLikePost } from '@/hooks/useLikePost';
 import { useRepost } from '@/hooks/useRepost';
+import { useReadContract } from 'wagmi';
+import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 
 interface Post {
   id: bigint;
@@ -26,20 +29,30 @@ interface Post {
 
 interface PostCardProps {
   post: Post;
-  authorName?: string;
-  authorAvatar?: string;
   onUpdate?: () => void;
   showAsUiRepost?: boolean; // UI-only repost indicator
   repostAuthor?: string; // For UI-only reposts
 }
 
-export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRepost, repostAuthor }: PostCardProps) {
+export function PostCard({ post, onUpdate, showAsUiRepost, repostAuthor }: PostCardProps) {
   const [repostOptionsOpen, setRepostOptionsOpen] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [tipModalOpen, setTipModalOpen] = useState(false);
 
+  // Fetch author profile
+  const { data: authorProfile } = useReadContract({
+    address: PULSECHAT_CONTRACT_ADDRESS,
+    abi: PULSECHAT_ABI,
+    functionName: 'profiles',
+    args: [post.author as `0x${string}`],
+  });
+
   const { isLiked, toggleLike, getPostLikeCount } = useLikePost(post.id);
   const { isReposted, toggleRepost, getPostRepostCount } = useRepost(post.id);
+  
+  // Parse author profile data
+  const { username, displayName, avatar: authorAvatar } = parseProfile(authorProfile);
+  const authorDisplayText = displayName || username || formatAddress(post.author);
   
   // Combine on-chain counts with UI-only counts
   const totalLikeCount = post.likeCount + getPostLikeCount();
@@ -110,10 +123,10 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
           <div className="flex-1 min-w-0">
             <div className="flex items-center gap-2 mb-1">
               <Link to={`/profile/${post.author}`} className="font-semibold hover:underline">
-                {authorName || formatAddress(post.author)}
+                {authorDisplayText}
               </Link>
               <span className="text-muted-foreground text-sm">
-                @{formatAddress(post.author)}
+                @{username || formatAddress(post.author)}
               </span>
               <span className="text-muted-foreground text-sm">·</span>
               <span className="text-muted-foreground text-sm">
@@ -236,8 +249,8 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRep
         onOpenChange={setTipModalOpen}
         postId={post.id}
         postAuthor={post.author as `0x${string}`}
-        authorName={authorName}
-        authorAvatar={authorAvatar}
+        authorName={authorDisplayText}
+        authorAvatar={authorAvatar || ''}
       />
     </>
   );

@@ -397,11 +397,9 @@ export default function Profile() {
                   isRepost: isOnChainQuote,
                   originalPostId: post.originalPostId || 0n,
                 }}
-                authorName={displayName}
-                authorAvatar={avatar}
                 onUpdate={refetchPosts}
                 showAsUiRepost={isUiRepost && !isOnChainQuote}
-                repostAuthor={isUiRepost && !isOnChainQuote ? (displayName || formatAddress(profileAddress)) : undefined}
+                repostAuthor={isUiRepost && !isOnChainQuote ? (displayText || formatAddress(profileAddress)) : undefined}
               />
             );
           })

@@ -49,55 +49,23 @@ export default function Index() {
 
         <div>
         {posts.length > 0 ? (
-          posts.map((post: any, index: number) => {
-            // Fetch author profile for each post
-            const AuthorPostCard = () => {
-              const { data: authorProfile } = useReadContract({
-                address: PULSECHAT_CONTRACT_ADDRESS,
-                abi: PULSECHAT_ABI,
-                functionName: 'profiles',
-                args: [post.author],
-              }) as { data: any };
-
-              // Debug log to check profile data structure
-              useEffect(() => {
-                if (authorProfile) {
-                  console.log('Author profile data:', {
-                    raw: authorProfile,
-                    name: authorProfile?.name || authorProfile?.[0],
-                    bio: authorProfile?.bio || authorProfile?.[1],
-                    avatarUrl: authorProfile?.avatarUrl || authorProfile?.[2],
-                  });
-                }
-              }, [authorProfile]);
-
-              // Contract returns array: [name, bio, avatarUrl, timestamp]
-              const profileName = authorProfile?.[0] || '';
-              const profileAvatar = authorProfile?.[2] || '';
-
-              return (
-                <PostCard
-                  key={post.id?.toString() || index}
-                  post={{
-                    id: post.id || BigInt(index),
-                    author: post.author,
-                    content: post.content,
-                    timestamp: Number(post.timestamp),
-                    likeCount: Number(post.likeCount),
-                    commentCount: Number(post.commentCount),
-                    repostCount: Number(post.repostCount),
-                    isRepost: post.isRepost,
-                    originalPostId: post.originalPostId,
-                  }}
-                  authorName={profileName}
-                  authorAvatar={profileAvatar}
-                  onUpdate={() => refetchPosts()}
-                />
-              );
-            };
-
-            return <AuthorPostCard key={index} />;
-          })
+          posts.map((post: any, index: number) => (
+            <PostCard
+              key={post.id?.toString() || index}
+              post={{
+                id: post.id || BigInt(index),
+                author: post.author,
+                content: post.content,
+                timestamp: Number(post.timestamp),
+                likeCount: Number(post.likeCount),
+                commentCount: Number(post.commentCount),
+                repostCount: Number(post.repostCount),
+                isRepost: post.isRepost,
+                originalPostId: post.originalPostId,
+              }}
+              onUpdate={() => refetchPosts()}
+            />
+          ))
         ) : (
           <div className="p-8 text-center text-muted-foreground">
             <p>No posts yet. Be the first to post!</p>

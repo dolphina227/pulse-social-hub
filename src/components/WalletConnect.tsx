@@ -31,7 +31,18 @@ export function WalletConnect() {
     connect({ connector });
   };
 
-  const profileName = userProfile?.[0] || '';
+  // Parse profile data
+  const username = userProfile?.[0] || '';
+  let displayName = '';
+  try {
+    const bioField = userProfile?.[1] || '';
+    const parsed = JSON.parse(bioField);
+    displayName = parsed.displayName || '';
+  } catch {
+    displayName = '';
+  }
+  
+  const profileDisplayText = displayName || username || formatAddress(address || '0x0');
   const profileAvatar = userProfile?.[2] || '';
 
   if (isConnected && address) {
@@ -47,7 +58,7 @@ export function WalletConnect() {
               </div>
             )}
             <div className="hidden xl:flex flex-1 flex-col items-start">
-              <p className="font-bold text-sm">{profileName || formatAddress(address)}</p>
+              <p className="font-bold text-sm">{profileDisplayText}</p>
               {isWrongNetwork ? (
                 <p className="text-xs text-destructive">Wrong network</p>
               ) : (
