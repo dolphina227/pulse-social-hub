@@ -61,16 +61,6 @@ export default function Analytics() {
 
   return (
     <div className="max-w-6xl mx-auto px-4 md:px-6 pt-16 lg:pt-0">
-      <div className="border-b border-border/50 p-6 sticky top-16 lg:top-0 bg-background/95 backdrop-blur z-10">
-        <div className="flex items-center gap-3 mb-2">
-          <div className="w-10 h-10 rounded-lg bg-gradient-pulse flex items-center justify-center">
-            <BarChart3 className="h-5 w-5 text-background" />
-          </div>
-          <h1 className="text-3xl font-bold gradient-pulse-text">Analytics Dashboard</h1>
-        </div>
-        <p className="text-muted-foreground">Real-time platform statistics and insights from the blockchain</p>
-      </div>
-
       <div className="p-6 space-y-8">
         {/* Main Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
