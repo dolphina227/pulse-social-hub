@@ -13,8 +13,8 @@ interface RepostedPosts {
 export function useRepost(postId: bigint) {
   const { address } = useAccount();
   const [isReposted, setIsReposted] = useState(false);
-  const [localRepostCount, setLocalRepostCount] = useState(0);
 
+  // Check if current user has reposted this post
   useEffect(() => {
     if (!address) {
       setIsReposted(false);
@@ -35,8 +35,33 @@ export function useRepost(postId: bigint) {
     }
   }, [address, postId]);
 
-  const toggleRepost = (currentCount: number): number => {
-    if (!address) return currentCount;
+  // Get total UI-only repost count for a specific post (across all users)
+  const getPostRepostCount = (): number => {
+    const key = 'reposted_posts';
+    const stored = localStorage.getItem(key);
+    if (!stored) return 0;
+
+    try {
+      const allReposts: RepostedPosts = JSON.parse(stored);
+      let count = 0;
+      const postIdStr = postId.toString();
+      
+      // Count how many users have reposted this post
+      Object.values(allReposts).forEach(userReposts => {
+        if (userReposts.some(r => r.postId === postIdStr)) {
+          count++;
+        }
+      });
+      
+      return count;
+    } catch (e) {
+      console.error('Error counting reposts:', e);
+      return 0;
+    }
+  };
+
+  const toggleRepost = (): boolean => {
+    if (!address) return false;
 
     const key = 'reposted_posts';
     const stored = localStorage.getItem(key);
@@ -58,15 +83,13 @@ export function useRepost(postId: bigint) {
     if (wasReposted) {
       allReposts[addressKey] = userReposts.filter(r => r.postId !== postIdStr);
       setIsReposted(false);
-      setLocalRepostCount(currentCount - 1);
       localStorage.setItem(key, JSON.stringify(allReposts));
-      return currentCount - 1;
+      return false;
     } else {
       allReposts[addressKey] = [...userReposts, { postId: postIdStr, timestamp: Date.now() }];
       setIsReposted(true);
-      setLocalRepostCount(currentCount + 1);
       localStorage.setItem(key, JSON.stringify(allReposts));
-      return currentCount + 1;
+      return true;
     }
   };
 
@@ -91,8 +114,8 @@ export function useRepost(postId: bigint) {
 
   return {
     isReposted,
-    localRepostCount,
     toggleRepost,
     getRepostedPosts,
+    getPostRepostCount,
   };
 }
