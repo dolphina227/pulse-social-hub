@@ -63,47 +63,8 @@ export default function Profile() {
     }
   }, [profile]);
 
-  // Fetch reposted posts
-  useEffect(() => {
-    const fetchRepostedPosts = async () => {
-      if (!isOwnProfile || !profileAddress) return;
-      
-      const reposted = getRepostedPosts();
-      const fetchedPosts = [];
-      
-      for (const repost of reposted) {
-        try {
-          const postData = await fetch(`https://rpc.pulsechain.com`, {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-              jsonrpc: '2.0',
-              method: 'eth_call',
-              params: [{
-                to: PULSECHAT_CONTRACT_ADDRESS,
-                data: `0x5312ea8e${repost.postId.padStart(64, '0')}` // posts(uint256)
-              }, 'latest'],
-              id: 1
-            })
-          });
-          const result = await postData.json();
-          if (result.result) {
-            fetchedPosts.push({
-              postId: repost.postId,
-              timestamp: repost.timestamp,
-              rawData: result.result
-            });
-          }
-        } catch (e) {
-          console.error('Error fetching reposted post:', e);
-        }
-      }
-      
-      setRepostedPosts(fetchedPosts);
-    };
-    
-    fetchRepostedPosts();
-  }, [isOwnProfile, profileAddress, getRepostedPosts]);
+  // Get UI-only reposted post IDs
+  const uiRepostedPostIds = isOwnProfile ? getRepostedPosts().map(r => r.postId) : [];
 
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
@@ -143,35 +104,6 @@ export default function Profile() {
 
   const refetchPosts = () => {
     // Trigger refetch if needed
-  };
-
-  const parsePostData = (rawData: string) => {
-    // Basic parsing - adjust based on actual data structure
-    try {
-      return {
-        id: BigInt('0x' + rawData.slice(2, 66)),
-        author: ('0x' + rawData.slice(90, 130)) as `0x${string}`,
-        content: '',
-        timestamp: 0,
-        likeCount: 0,
-        commentCount: 0,
-        repostCount: 0,
-        isRepost: false,
-        originalPostId: 0n,
-      };
-    } catch (e) {
-      return {
-        id: 0n,
-        author: '0x0000000000000000000000000000000000000000' as `0x${string}`,
-        content: '',
-        timestamp: 0,
-        likeCount: 0,
-        commentCount: 0,
-        repostCount: 0,
-        isRepost: false,
-        originalPostId: 0n,
-      };
-    }
   };
 
   if (!isConnected) {
@@ -294,17 +226,16 @@ export default function Profile() {
       <div className="space-y-0">
         <h2 className="text-xl font-semibold mb-4 px-4 pt-4">Posts & Quotes</h2>
         
-        {/* Note: UI-only reposts are displayed mixed with original posts below */}
-        
-        {/* Display all posts (original posts + on-chain quotes) */}
         {userPosts && userPosts.length > 0 ? (
           userPosts.map((post: any) => {
-            // Check if this post is a UI-only repost
-            const uiRepost = isOwnProfile && repostedPosts.find(r => r.postId === post.id?.toString());
+            // Check if this is a UI-only repost (not an on-chain quote)
+            const isUiRepost = isOwnProfile && uiRepostedPostIds.includes(post.id?.toString());
+            // On-chain quote has post.isRepost === true
+            const isOnChainQuote = post.isRepost === true;
             
             return (
               <PostCard
-                key={post.id?.toString()}
+                key={`${post.id?.toString()}-${isUiRepost ? 'repost' : 'post'}`}
                 post={{
                   id: post.id,
                   author: post.author,
@@ -313,14 +244,14 @@ export default function Profile() {
                   likeCount: Number(post.likeCount || 0),
                   commentCount: Number(post.commentCount || 0),
                   repostCount: Number(post.repostCount || 0),
-                  isRepost: post.isRepost || !!uiRepost,
+                  isRepost: isOnChainQuote,
                   originalPostId: post.originalPostId || 0n,
                 }}
                 authorName={displayName}
                 authorAvatar={avatar}
                 onUpdate={refetchPosts}
-                isRepost={!!uiRepost}
-                repostAuthor={uiRepost ? (displayName || formatAddress(profileAddress)) : undefined}
+                showAsUiRepost={isUiRepost && !isOnChainQuote}
+                repostAuthor={isUiRepost && !isOnChainQuote ? (displayName || formatAddress(profileAddress)) : undefined}
               />
             );
           })
