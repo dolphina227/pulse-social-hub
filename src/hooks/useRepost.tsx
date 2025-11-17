@@ -1,8 +1,13 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 
+interface RepostedPost {
+  postId: string;
+  timestamp: number;
+}
+
 interface RepostedPosts {
-  [postId: string]: boolean;
+  [address: string]: RepostedPost[];
 }
 
 export function useRepost(postId: bigint) {
@@ -10,70 +15,78 @@ export function useRepost(postId: bigint) {
   const [isReposted, setIsReposted] = useState(false);
   const [localRepostCount, setLocalRepostCount] = useState(0);
 
-  const storageKey = `reposted_posts_${address?.toLowerCase()}`;
-
   useEffect(() => {
-    if (!address) return;
+    if (!address) {
+      setIsReposted(false);
+      return;
+    }
 
-    // Load repost status from localStorage
-    const stored = localStorage.getItem(storageKey);
+    const key = 'reposted_posts';
+    const stored = localStorage.getItem(key);
     if (stored) {
       try {
-        const repostedPosts: RepostedPosts = JSON.parse(stored);
-        setIsReposted(!!repostedPosts[postId.toString()]);
+        const allReposts: RepostedPosts = JSON.parse(stored);
+        const userReposts = allReposts[address.toLowerCase()] || [];
+        const postIdStr = postId.toString();
+        setIsReposted(userReposts.some(r => r.postId === postIdStr));
       } catch (e) {
-        console.error('Failed to parse reposted posts:', e);
+        console.error('Error loading repost state:', e);
       }
     }
-  }, [address, postId, storageKey]);
+  }, [address, postId]);
 
-  const toggleRepost = (currentCount: number) => {
+  const toggleRepost = (currentCount: number): number => {
     if (!address) return currentCount;
 
-    const stored = localStorage.getItem(storageKey);
-    let repostedPosts: RepostedPosts = {};
+    const key = 'reposted_posts';
+    const stored = localStorage.getItem(key);
+    let allReposts: RepostedPosts = {};
     
     if (stored) {
       try {
-        repostedPosts = JSON.parse(stored);
+        allReposts = JSON.parse(stored);
       } catch (e) {
-        console.error('Failed to parse reposted posts:', e);
+        console.error('Error parsing repost state:', e);
       }
     }
 
+    const addressKey = address.toLowerCase();
+    const userReposts = allReposts[addressKey] || [];
     const postIdStr = postId.toString();
-    const wasReposted = !!repostedPosts[postIdStr];
+    const wasReposted = userReposts.some(r => r.postId === postIdStr);
     
     if (wasReposted) {
-      // Undo repost
-      delete repostedPosts[postIdStr];
+      allReposts[addressKey] = userReposts.filter(r => r.postId !== postIdStr);
       setIsReposted(false);
-      setLocalRepostCount(Math.max(0, currentCount - 1));
+      setLocalRepostCount(currentCount - 1);
+      localStorage.setItem(key, JSON.stringify(allReposts));
+      return currentCount - 1;
     } else {
-      // Repost
-      repostedPosts[postIdStr] = true;
+      allReposts[addressKey] = [...userReposts, { postId: postIdStr, timestamp: Date.now() }];
       setIsReposted(true);
       setLocalRepostCount(currentCount + 1);
+      localStorage.setItem(key, JSON.stringify(allReposts));
+      return currentCount + 1;
     }
-
-    localStorage.setItem(storageKey, JSON.stringify(repostedPosts));
-    
-    return wasReposted ? Math.max(0, currentCount - 1) : currentCount + 1;
   };
 
-  const getRepostedPosts = (): string[] => {
+  const getRepostedPosts = (): RepostedPost[] => {
     if (!address) return [];
+
+    const key = 'reposted_posts';
+    const stored = localStorage.getItem(key);
     
-    const stored = localStorage.getItem(storageKey);
-    if (!stored) return [];
-    
-    try {
-      const repostedPosts: RepostedPosts = JSON.parse(stored);
-      return Object.keys(repostedPosts);
-    } catch (e) {
-      console.error('Failed to parse reposted posts:', e);
-      return [];
+    if (stored) {
+      try {
+        const allReposts: RepostedPosts = JSON.parse(stored);
+        return allReposts[address.toLowerCase()] || [];
+      } catch (e) {
+        console.error('Error loading reposted posts:', e);
+        return [];
+      }
     }
+    
+    return [];
   };
 
   return {
