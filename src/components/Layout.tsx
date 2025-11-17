@@ -1,9 +1,11 @@
 import { Link, useLocation } from 'react-router-dom';
+import { useState } from 'react';
 import { WalletConnect } from './WalletConnect';
 import { Home, Search, MessageSquare, Trophy, User, Plus, BarChart3 } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import pulsechatLogo from '@/assets/pulsechat-logo.png';
+import { CreatePostModal } from './CreatePostModal';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -16,9 +18,12 @@ const navigation = [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   return (
-    <div className="min-h-screen bg-background">
+    <>
+      <CreatePostModal open={isPostModalOpen} onOpenChange={setIsPostModalOpen} />
+      <div className="min-h-screen bg-background">
       <div className="container mx-auto flex">
         {/* Left Sidebar - Desktop */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 xl:w-72 h-screen sticky top-0 border-r border-border/50 px-4 py-6">
@@ -50,12 +55,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
             })}
           </nav>
 
-          <Link to="/">
-            <Button variant="gradient" size="lg" className="w-full rounded-full mb-4 text-lg h-12">
-              <Plus className="h-5 w-5 mr-2" />
-              Post
-            </Button>
-          </Link>
+          <Button 
+            variant="gradient" 
+            size="lg" 
+            className="w-full rounded-full mb-4 text-lg h-12"
+            onClick={() => setIsPostModalOpen(true)}
+          >
+            <Plus className="h-5 w-5 mr-2" />
+            Post
+          </Button>
 
           <div className="mt-auto">
             <WalletConnect />
@@ -147,6 +155,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           </div>
         </div>
       </div>
-    </div>
+      </div>
+    </>
   );
 }
