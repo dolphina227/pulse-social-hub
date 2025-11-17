@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useReadContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
@@ -185,6 +185,22 @@ export default function Index() {
                 args: [post.author],
               }) as { data: any };
 
+              // Debug log to check profile data structure
+              useEffect(() => {
+                if (authorProfile) {
+                  console.log('Author profile data:', {
+                    raw: authorProfile,
+                    name: authorProfile?.name || authorProfile?.[0],
+                    bio: authorProfile?.bio || authorProfile?.[1],
+                    avatarUrl: authorProfile?.avatarUrl || authorProfile?.[2],
+                  });
+                }
+              }, [authorProfile]);
+
+              // Contract returns array: [name, bio, avatarUrl, timestamp]
+              const profileName = authorProfile?.[0] || '';
+              const profileAvatar = authorProfile?.[2] || '';
+
               return (
                 <PostCard
                   key={index}
@@ -199,8 +215,8 @@ export default function Index() {
                     isRepost: post.isRepost,
                     originalPostId: post.originalPostId,
                   }}
-                  authorName={authorProfile?.name || ''}
-                  authorAvatar={authorProfile?.avatarUrl || ''}
+                  authorName={profileName}
+                  authorAvatar={profileAvatar}
                   onUpdate={() => refetchPosts()}
                 />
               );
