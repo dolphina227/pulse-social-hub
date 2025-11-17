@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
@@ -53,73 +53,99 @@ export default function Explore() {
       <div className="space-y-4">
         {filteredPosts && filteredPosts.length > 0 ? (
           filteredPosts.map((post) => {
-            // Parse media from content
-            const mediaRegex = /\[media:(https?:\/\/[^\]]+)\]/g;
-            const matches = [...post.content.matchAll(mediaRegex)];
-            const mediaUrls = matches.map(match => match[1]);
-            const textContent = post.content.replace(mediaRegex, '').trim();
+            // Component to fetch author profile
+            const PostWithAuthor = () => {
+              const { data: authorProfile } = useReadContract({
+                address: PULSECHAT_CONTRACT_ADDRESS,
+                abi: PULSECHAT_ABI,
+                functionName: 'profiles',
+                args: [post.author],
+              }) as { data: any };
 
-            return (
-              <Card key={post.id.toString()} className="glass-effect border-border/50 hover:border-primary/20 transition-all">
-                <CardContent className="pt-6">
-                  <div className="flex gap-4">
-                    <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center flex-shrink-0">
-                      <span className="text-sm font-bold text-white">
-                        {formatAddress(post.author).slice(0, 2)}
-                      </span>
-                    </div>
-                    
-                    <div className="flex-1 space-y-3">
-                      <div className="flex items-center gap-2 flex-wrap">
-                        <span className="font-semibold text-sm">{formatAddress(post.author)}</span>
-                        <span className="text-xs text-muted-foreground">
-                          {formatTimestamp(Number(post.timestamp))}
-                        </span>
-                        {post.isRepost && (
-                          <span className="text-xs text-pulse-cyan">
-                            Reposted from #{post.originalPostId.toString()}
+              // Parse media from content
+              const mediaRegex = /\[media:(https?:\/\/[^\]]+)\]/g;
+              const matches = [...post.content.matchAll(mediaRegex)];
+              const mediaUrls = matches.map(match => match[1]);
+              const textContent = post.content.replace(mediaRegex, '').trim();
+
+              // Extract profile data
+              const profileName = authorProfile?.[0] || '';
+              const profileAvatar = authorProfile?.[2] || '';
+
+              return (
+                <Card key={post.id.toString()} className="glass-effect border-border/50 hover:border-primary/20 transition-all">
+                  <CardContent className="pt-6">
+                    <div className="flex gap-4">
+                      {profileAvatar ? (
+                        <img src={profileAvatar} alt="Avatar" className="w-10 h-10 rounded-full flex-shrink-0 object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-white">
+                            {formatAddress(post.author).slice(0, 2)}
                           </span>
+                        </div>
+                      )}
+                      
+                      <div className="flex-1 space-y-3">
+                        <div className="flex items-center gap-2 flex-wrap">
+                          <span className="font-semibold text-sm">
+                            {profileName || formatAddress(post.author)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">
+                            @{formatAddress(post.author)}
+                          </span>
+                          <span className="text-xs text-muted-foreground">·</span>
+                          <span className="text-xs text-muted-foreground">
+                            {formatTimestamp(Number(post.timestamp))}
+                          </span>
+                          {post.isRepost && (
+                            <span className="text-xs text-pulse-cyan">
+                              Reposted from #{post.originalPostId.toString()}
+                            </span>
+                          )}
+                        </div>
+                        
+                        {textContent && (
+                          <p className="text-foreground whitespace-pre-wrap break-words">{textContent}</p>
                         )}
-                      </div>
-                      
-                      {textContent && (
-                        <p className="text-foreground whitespace-pre-wrap break-words">{textContent}</p>
-                      )}
-                      
-                      {mediaUrls.length > 0 && (
-                        <div className="rounded-xl overflow-hidden border border-border/50">
-                          {mediaUrls.map((url, index) => (
-                            <img
-                              key={index}
-                              src={url}
-                              alt="Post media"
-                              className="w-full h-auto object-cover"
-                            />
-                          ))}
-                        </div>
-                      )}
-                      
-                      <div className="flex items-center gap-6 pt-2">
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Heart className="h-4 w-4" />
-                          <span className="text-sm">{post.likeCount.toString()}</span>
-                        </div>
                         
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <MessageCircle className="h-4 w-4" />
-                          <span className="text-sm">{post.commentCount.toString()}</span>
-                        </div>
+                        {mediaUrls.length > 0 && (
+                          <div className="rounded-xl overflow-hidden border border-border/50">
+                            {mediaUrls.map((url, index) => (
+                              <img
+                                key={index}
+                                src={url}
+                                alt="Post media"
+                                className="w-full h-auto object-cover"
+                              />
+                            ))}
+                          </div>
+                        )}
                         
-                        <div className="flex items-center gap-2 text-muted-foreground">
-                          <Repeat2 className="h-4 w-4" />
-                          <span className="text-sm">{post.repostCount.toString()}</span>
+                        <div className="flex items-center gap-6 pt-2">
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Heart className="h-4 w-4" />
+                            <span className="text-sm">{post.likeCount.toString()}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <MessageCircle className="h-4 w-4" />
+                            <span className="text-sm">{post.commentCount.toString()}</span>
+                          </div>
+                          
+                          <div className="flex items-center gap-2 text-muted-foreground">
+                            <Repeat2 className="h-4 w-4" />
+                            <span className="text-sm">{post.repostCount.toString()}</span>
+                          </div>
                         </div>
                       </div>
                     </div>
-                  </div>
-                </CardContent>
-              </Card>
-            );
+                  </CardContent>
+                </Card>
+              );
+            };
+
+            return <PostWithAuthor key={post.id.toString()} />;
           })
         ) : (
           <Card className="glass-effect">
