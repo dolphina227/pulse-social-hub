@@ -4,10 +4,12 @@ import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { Button } from './ui/button';
 import { useState } from 'react';
 import { toast } from 'sonner';
-import { RepostModal } from './RepostModal';
+import { RepostOptionsModal } from './RepostOptionsModal';
+import { QuoteModal } from './QuoteModal';
 import { TipModal } from './TipModal';
 import { cn } from '@/lib/utils';
 import { useLikePost } from '@/hooks/useLikePost';
+import { useRepost } from '@/hooks/useRepost';
 
 interface Post {
   id: bigint;
@@ -29,11 +31,14 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardProps) {
-  const [repostModalOpen, setRepostModalOpen] = useState(false);
+  const [repostOptionsOpen, setRepostOptionsOpen] = useState(false);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [tipModalOpen, setTipModalOpen] = useState(false);
   const [displayLikeCount, setDisplayLikeCount] = useState(post.likeCount);
+  const [displayRepostCount, setDisplayRepostCount] = useState(post.repostCount);
 
   const { isLiked, toggleLike } = useLikePost(post.id);
+  const { isReposted, toggleRepost } = useRepost(post.id);
 
   // Parse media from content
   const parseContent = (content: string) => {
@@ -54,6 +59,17 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
       toast.success('Removed like');
     } else {
       toast.success('Post liked!');
+    }
+  };
+
+  const handleRepost = () => {
+    const newCount = toggleRepost(displayRepostCount);
+    setDisplayRepostCount(newCount);
+    
+    if (isReposted) {
+      toast.success('Removed from your profile');
+    } else {
+      toast.success('Reposted to your profile!');
     }
   };
 
@@ -128,12 +144,15 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
               <Button
                 variant="ghost"
                 size="sm"
-                className="gap-2 hover:text-pulse-blue"
-                onClick={() => setRepostModalOpen(true)}
-                title="Repost this post"
+                className={cn(
+                  "gap-2 hover:text-pulse-blue transition-colors",
+                  isReposted && "text-pulse-blue"
+                )}
+                onClick={() => setRepostOptionsOpen(true)}
+                title={isReposted ? "Reposted" : "Repost this post"}
               >
                 <Repeat2 className="h-4 w-4" />
-                <span className="text-sm">{post.repostCount.toString()}</span>
+                <span className="text-sm">{displayRepostCount.toString()}</span>
               </Button>
 
               <Button
@@ -164,9 +183,17 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
         </div>
       </div>
 
-      <RepostModal
-        open={repostModalOpen}
-        onOpenChange={setRepostModalOpen}
+      <RepostOptionsModal
+        open={repostOptionsOpen}
+        onOpenChange={setRepostOptionsOpen}
+        onRepost={handleRepost}
+        onQuote={() => setQuoteModalOpen(true)}
+        isReposted={isReposted}
+      />
+
+      <QuoteModal
+        open={quoteModalOpen}
+        onOpenChange={setQuoteModalOpen}
         postId={post.id}
         originalContent={post.content}
         originalAuthor={post.author}
