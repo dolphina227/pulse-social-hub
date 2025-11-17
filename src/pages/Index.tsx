@@ -85,7 +85,7 @@ export default function Index() {
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="What's happening on PulseChain?"
+              placeholder="What's happening on ProveChat?"
               className="min-h-[100px] sm:min-h-[120px] resize-none border-0 focus-visible:ring-0 text-base sm:text-lg p-0"
             />
             <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-border/50">

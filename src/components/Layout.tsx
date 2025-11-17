@@ -23,8 +23,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Left Sidebar - Desktop */}
         <aside className="hidden lg:flex lg:flex-col lg:w-64 xl:w-72 h-screen sticky top-0 border-r border-border/50 px-4 py-6">
           <Link to="/" className="flex items-center gap-3 mb-8 px-3">
-            <img src={pulsechatLogo} alt="PULSECHAT" className="h-14 w-14" />
-            <h1 className="text-2xl font-bold gradient-pulse-text">PULSECHAT</h1>
+            <img src={pulsechatLogo} alt="ProveChat" className="h-14 w-14" />
+            <h1 className="text-2xl font-bold gradient-pulse-text">ProveChat</h1>
           </Link>
 
           <nav className="flex-1 space-y-2">
@@ -72,7 +72,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search PULSECHAT"
+                placeholder="Search ProveChat"
                 className="w-full bg-muted/50 rounded-full py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -139,8 +139,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 border-b border-border/50 glass-effect">
         <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
-            <img src={pulsechatLogo} alt="PULSECHAT" className="h-8 w-8 sm:h-10 sm:w-10" />
-            <h1 className="text-base sm:text-lg font-bold gradient-pulse-text">PULSECHAT</h1>
+            <img src={pulsechatLogo} alt="ProveChat" className="h-8 w-8 sm:h-10 sm:w-10" />
+            <h1 className="text-base sm:text-lg font-bold gradient-pulse-text">ProveChat</h1>
           </Link>
           <div className="scale-90 sm:scale-100">
             <WalletConnect />
