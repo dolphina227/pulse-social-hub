@@ -7,15 +7,18 @@ import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 import { AlertCircle, ArrowLeft, Heart, MessageCircle, Repeat2 } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { toast } from 'sonner';
-import { RepostModal } from '@/components/RepostModal';
+import { RepostOptionsModal } from '@/components/RepostOptionsModal';
+import { QuoteModal } from '@/components/QuoteModal';
 import { CommentComposer } from '@/components/CommentComposer';
 import { cn } from '@/lib/utils';
 import { useLikePost } from '@/hooks/useLikePost';
+import { useRepost } from '@/hooks/useRepost';
 
 export default function PostDetail() {
   const { id } = useParams();
   const { isConnected } = useAccount();
-  const [repostModalOpen, setRepostModalOpen] = useState(false);
+  const [repostOptionsOpen, setRepostOptionsOpen] = useState(false);
+  const [quoteModalOpen, setQuoteModalOpen] = useState(false);
 
   const postId = id ? BigInt(id) : 0n;
 
@@ -34,11 +37,16 @@ export default function PostDetail() {
   });
 
   const [displayLikeCount, setDisplayLikeCount] = useState(0);
+  const [displayRepostCount, setDisplayRepostCount] = useState(0);
   const { isLiked, toggleLike } = useLikePost(postId);
+  const { isReposted, toggleRepost } = useRepost(postId);
 
-  // Update display count when post data loads
+  // Update display counts when post data loads
   if (post && displayLikeCount === 0) {
     setDisplayLikeCount(Number(post[4] || 0));
+  }
+  if (post && displayRepostCount === 0) {
+    setDisplayRepostCount(Number(post[6] || 0));
   }
 
   const handleLike = () => {
@@ -50,6 +58,18 @@ export default function PostDetail() {
       toast.success('Removed like');
     } else {
       toast.success('Post liked!');
+    }
+  };
+
+  const handleRepost = () => {
+    const currentCount = Number(post?.[6] || 0);
+    const newCount = toggleRepost(currentCount);
+    setDisplayRepostCount(newCount);
+    
+    if (isReposted) {
+      toast.success('Removed from your profile');
+    } else {
+      toast.success('Reposted to your profile!');
     }
   };
 
@@ -140,12 +160,15 @@ export default function PostDetail() {
             <Button
               variant="ghost"
               size="sm"
-              className="gap-2 hover:text-pulse-blue transition-colors"
-              onClick={() => setRepostModalOpen(true)}
-              title="Repost this post"
+              className={cn(
+                "gap-2 hover:text-pulse-blue transition-colors",
+                isReposted && "text-pulse-blue"
+              )}
+              onClick={() => setRepostOptionsOpen(true)}
+              title={isReposted ? "Reposted" : "Repost or Quote"}
             >
               <Repeat2 className="h-5 w-5" />
-              <span>{post[6]?.toString() || '0'}</span>
+              <span>{displayRepostCount}</span>
             </Button>
           </div>
         </div>
@@ -188,9 +211,17 @@ export default function PostDetail() {
         </div>
       </div>
 
-      <RepostModal
-        open={repostModalOpen}
-        onOpenChange={setRepostModalOpen}
+      <RepostOptionsModal
+        open={repostOptionsOpen}
+        onOpenChange={setRepostOptionsOpen}
+        onRepost={handleRepost}
+        onQuote={() => setQuoteModalOpen(true)}
+        isReposted={isReposted}
+      />
+
+      <QuoteModal
+        open={quoteModalOpen}
+        onOpenChange={setQuoteModalOpen}
         postId={postId}
         originalContent={post[2]}
         originalAuthor={post[1]}
