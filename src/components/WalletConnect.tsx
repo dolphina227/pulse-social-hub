@@ -31,8 +31,8 @@ export function WalletConnect() {
     connect({ connector });
   };
 
-  const profileName = userProfile?.name || '';
-  const profileAvatar = userProfile?.avatarUrl || '';
+  const profileName = userProfile?.[0] || '';
+  const profileAvatar = userProfile?.[2] || '';
 
   if (isConnected && address) {
     return (

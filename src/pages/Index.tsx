@@ -13,10 +13,20 @@ import { USDCApproval } from '@/components/USDCApproval';
 import { useUsdcApprovalForFee } from '@/hooks/useUsdcApprovalForFee';
 
 export default function Index() {
-  const { isConnected } = useAccount();
+  const { isConnected, address } = useAccount();
   const [content, setContent] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
   const { hasAllowance, feeHuman, feeAmount } = useUsdcApprovalForFee();
+
+  // Fetch current user profile
+  const { data: currentUserProfile } = useReadContract({
+    address: PULSECHAT_CONTRACT_ADDRESS,
+    abi: PULSECHAT_ABI,
+    functionName: 'profiles',
+    args: address ? [address] : undefined,
+  }) as { data: any };
+
+  const currentUserAvatar = currentUserProfile?.[2] || '';
 
   const { data: latestPosts, refetch: refetchPosts } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
@@ -76,7 +86,11 @@ export default function Index() {
     <div className="max-w-2xl mx-auto px-4 md:px-0 pt-20 lg:pt-6">
       <div className="border-b border-border/50 p-4">
         <div className="flex gap-2 sm:gap-4">
-          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
+          {currentUserAvatar ? (
+            <img src={currentUserAvatar} alt="Your profile" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0" />
+          ) : (
+            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
+          )}
           <div className="flex-1">
             <Textarea
               value={content}
