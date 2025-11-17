@@ -7,12 +7,16 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
-import { Calendar, MessageSquare, MessageCircle, Heart, Edit, AlertCircle, Upload, Repeat2, Info } from 'lucide-react';
+import { Calendar, MessageSquare, MessageCircle, Heart, Edit, AlertCircle, Upload, Repeat2, Info, Users } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { toast } from 'sonner';
 import { uploadImage, validateImageFile } from '@/lib/storage';
 import { PostCard } from '@/components/PostCard';
 import { useRepost } from '@/hooks/useRepost';
+import { useFollow } from '@/hooks/useFollow';
+import { FollowButton } from '@/components/FollowButton';
+import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { parseProfile } from '@/lib/utils/profile';
 
 export default function Profile() {
   const { address: connectedAddress, isConnected } = useAccount();
@@ -30,6 +34,7 @@ export default function Profile() {
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { getRepostedPosts } = useRepost(0n);
+  const { getFollowersCount, getFollowingCount, getFollowers, getFollowing } = useFollow();
 
   const { writeContract, isPending } = useWriteContract();
 
@@ -323,11 +328,15 @@ export default function Profile() {
                       <h1 className="text-2xl font-bold">{displayText}</h1>
                       <p className="text-sm text-muted-foreground">@{profileUsername || formatAddress(profileAddress)}</p>
                     </div>
-                    {isOwnProfile && (
-                      <Button variant="outline" onClick={() => setIsEditing(true)}>
-                        <Edit className="h-4 w-4 mr-2" />Edit
-                      </Button>
-                    )}
+                    <div className="flex gap-2">
+                      {isOwnProfile ? (
+                        <Button variant="outline" onClick={() => setIsEditing(true)}>
+                          <Edit className="h-4 w-4 mr-2" />Edit
+                        </Button>
+                      ) : (
+                        <FollowButton targetAddress={profileAddress} size="default" />
+                      )}
+                    </div>
                   </div>
 
                   {profileBio && <p>{profileBio}</p>}
@@ -343,7 +352,7 @@ export default function Profile() {
         </CardContent>
       </Card>
 
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-4">
         <Card className="glass-effect">
           <CardContent className="pt-6 text-center">
             <p className="text-2xl font-bold text-pulse-cyan">{userStats?.[1]?.toString() || '0'}</p>
@@ -367,50 +376,163 @@ export default function Profile() {
 
         <Card className="glass-effect">
           <CardContent className="pt-6 text-center">
-            <p className="text-2xl font-bold text-pulse-purple">{userStats?.[6]?.toString() || '0'}</p>
-            <p className="text-sm text-muted-foreground">Quotes</p>
+            <p className="text-2xl font-bold text-pulse-purple">{getFollowersCount(profileAddress)}</p>
+            <p className="text-sm text-muted-foreground">Followers</p>
+          </CardContent>
+        </Card>
+
+        <Card className="glass-effect">
+          <CardContent className="pt-6 text-center">
+            <p className="text-2xl font-bold text-pulse-cyan">{getFollowingCount(profileAddress)}</p>
+            <p className="text-sm text-muted-foreground">Following</p>
           </CardContent>
         </Card>
       </div>
 
-      <div className="space-y-0">
-        <h2 className="text-xl font-semibold mb-4 px-4 pt-4">Posts & Quotes</h2>
+      <Tabs defaultValue="posts" className="w-full">
+        <TabsList className="w-full grid grid-cols-3 glass-effect">
+          <TabsTrigger value="posts">Posts</TabsTrigger>
+          <TabsTrigger value="followers">Followers ({getFollowersCount(profileAddress)})</TabsTrigger>
+          <TabsTrigger value="following">Following ({getFollowingCount(profileAddress)})</TabsTrigger>
+        </TabsList>
         
-        {userPosts && userPosts.length > 0 ? (
-          userPosts.map((post: any) => {
-            // Check if this is a UI-only repost (not an on-chain quote)
-            const isUiRepost = isOwnProfile && uiRepostedPostIds.includes(post.id?.toString());
-            // On-chain quote has post.isRepost === true
-            const isOnChainQuote = post.isRepost === true;
-            
-            return (
-              <PostCard
-                key={`${post.id?.toString()}-${isUiRepost ? 'repost' : 'post'}`}
-                post={{
-                  id: post.id,
-                  author: post.author,
-                  content: post.content,
-                  timestamp: Number(post.timestamp),
-                  likeCount: Number(post.likeCount || 0),
-                  commentCount: Number(post.commentCount || 0),
-                  repostCount: Number(post.repostCount || 0),
-                  isRepost: isOnChainQuote,
-                  originalPostId: post.originalPostId || 0n,
-                }}
-                onUpdate={refetchPosts}
-                showAsUiRepost={isUiRepost && !isOnChainQuote}
-                repostAuthor={isUiRepost && !isOnChainQuote ? (displayText || formatAddress(profileAddress)) : undefined}
-              />
-            );
-          })
-        ) : (
-          <Card className="glass-effect mx-4">
-            <CardContent className="pt-6 text-center text-muted-foreground">
-              <p>No posts yet.</p>
+        <TabsContent value="posts" className="mt-4 space-y-0">
+          {userPosts && userPosts.length > 0 ? (
+            userPosts.map((post: any) => {
+              const isUiRepost = isOwnProfile && uiRepostedPostIds.includes(post.id?.toString());
+              const isOnChainQuote = post.isRepost === true;
+              
+              return (
+                <PostCard
+                  key={`${post.id?.toString()}-${isUiRepost ? 'repost' : 'post'}`}
+                  post={{
+                    id: post.id,
+                    author: post.author,
+                    content: post.content,
+                    timestamp: Number(post.timestamp),
+                    likeCount: Number(post.likeCount || 0),
+                    commentCount: Number(post.commentCount || 0),
+                    repostCount: Number(post.repostCount || 0),
+                    isRepost: isOnChainQuote,
+                    originalPostId: post.originalPostId || 0n,
+                  }}
+                  onUpdate={refetchPosts}
+                  showAsUiRepost={isUiRepost && !isOnChainQuote}
+                  repostAuthor={isUiRepost && !isOnChainQuote ? (displayText || formatAddress(profileAddress)) : undefined}
+                />
+              );
+            })
+          ) : (
+            <Card className="glass-effect">
+              <CardContent className="pt-6 text-center text-muted-foreground">
+                No posts yet
+              </CardContent>
+            </Card>
+          )}
+        </TabsContent>
+
+        <TabsContent value="followers" className="mt-4">
+          <Card className="glass-effect">
+            <CardContent className="pt-6">
+              {getFollowers(profileAddress).length > 0 ? (
+                <div className="space-y-3">
+                  {getFollowers(profileAddress).map((followerAddress) => {
+                    const FollowerItem = () => {
+                      const { data: followerProfile } = useReadContract({
+                        address: PULSECHAT_CONTRACT_ADDRESS,
+                        abi: PULSECHAT_ABI,
+                        functionName: 'profiles',
+                        args: [followerAddress as `0x${string}`],
+                      });
+
+                      const { username, displayName, avatar } = parseProfile(followerProfile);
+                      const displayText = displayName || username || formatAddress(followerAddress);
+
+                      return (
+                        <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors">
+                          <div className="flex items-center gap-3 flex-1">
+                            {avatar ? (
+                              <img src={avatar} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gradient-pulse flex items-center justify-center">
+                                <span className="text-sm font-bold text-white">
+                                  {displayText.slice(0, 2).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <div>
+                              <p className="font-semibold">{displayText}</p>
+                              <p className="text-sm text-muted-foreground">
+                                @{username || formatAddress(followerAddress)}
+                              </p>
+                            </div>
+                          </div>
+                          <FollowButton targetAddress={followerAddress} />
+                        </div>
+                      );
+                    };
+
+                    return <FollowerItem key={followerAddress} />;
+                  })}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">No followers yet</p>
+              )}
             </CardContent>
           </Card>
-        )}
-      </div>
+        </TabsContent>
+
+        <TabsContent value="following" className="mt-4">
+          <Card className="glass-effect">
+            <CardContent className="pt-6">
+              {getFollowing(profileAddress).length > 0 ? (
+                <div className="space-y-3">
+                  {getFollowing(profileAddress).map((followingAddress) => {
+                    const FollowingItem = () => {
+                      const { data: followingProfile } = useReadContract({
+                        address: PULSECHAT_CONTRACT_ADDRESS,
+                        abi: PULSECHAT_ABI,
+                        functionName: 'profiles',
+                        args: [followingAddress as `0x${string}`],
+                      });
+
+                      const { username, displayName, avatar } = parseProfile(followingProfile);
+                      const displayText = displayName || username || formatAddress(followingAddress);
+
+                      return (
+                        <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors">
+                          <div className="flex items-center gap-3 flex-1">
+                            {avatar ? (
+                              <img src={avatar} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
+                            ) : (
+                              <div className="w-12 h-12 rounded-full bg-gradient-pulse flex items-center justify-center">
+                                <span className="text-sm font-bold text-white">
+                                  {displayText.slice(0, 2).toUpperCase()}
+                                </span>
+                              </div>
+                            )}
+                            <div>
+                              <p className="font-semibold">{displayText}</p>
+                              <p className="text-sm text-muted-foreground">
+                                @{username || formatAddress(followingAddress)}
+                              </p>
+                            </div>
+                          </div>
+                          <FollowButton targetAddress={followingAddress} />
+                        </div>
+                      );
+                    };
+
+                    return <FollowingItem key={followingAddress} />;
+                  })}
+                </div>
+              ) : (
+                <p className="text-center text-muted-foreground py-8">Not following anyone yet</p>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+      </Tabs>
     </div>
   );
 }
