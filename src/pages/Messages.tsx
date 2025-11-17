@@ -83,7 +83,7 @@ export default function Messages() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto pb-20 md:pb-6 px-4 md:px-0 pt-16 lg:pt-0">
+    <div className="max-w-6xl mx-auto pb-20 md:pb-6 px-4 md:px-0 pt-20 lg:pt-6">
       <div className="mb-6">
         <Alert className="border-pulse-cyan/20">
           <AlertCircle className="h-4 w-4 text-pulse-cyan" />
