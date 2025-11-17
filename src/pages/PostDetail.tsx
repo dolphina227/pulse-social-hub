@@ -90,6 +90,17 @@ export default function PostDetail() {
     );
   }
 
+  // Fetch author profile
+  const { data: authorProfile } = useReadContract({
+    address: PULSECHAT_CONTRACT_ADDRESS,
+    abi: PULSECHAT_ABI,
+    functionName: 'profiles',
+    args: post ? [post[1]] : undefined,
+  }) as { data: any };
+
+  const authorName = authorProfile?.[0] || '';
+  const authorAvatar = authorProfile?.[2] || '';
+
   return (
     <>
       <div className="max-w-2xl mx-auto pb-20 md:pb-6 pt-16 lg:pt-0">
@@ -104,10 +115,18 @@ export default function PostDetail() {
 
         <div className="border-b border-border/50 p-4">
           <div className="flex gap-3 mb-4">
-            <div className="w-12 h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
+            {authorAvatar ? (
+              <img src={authorAvatar} alt="Avatar" className="w-12 h-12 rounded-full object-cover flex-shrink-0" />
+            ) : (
+              <div className="w-12 h-12 rounded-full bg-gradient-pulse flex-shrink-0 flex items-center justify-center">
+                <span className="text-white font-bold">
+                  {authorName ? authorName.slice(0, 2).toUpperCase() : formatAddress(post[1]).slice(0, 2)}
+                </span>
+              </div>
+            )}
             <div className="flex-1">
               <Link to={`/profile/${post[1]}`} className="font-semibold hover:underline">
-                {formatAddress(post[1])}
+                {authorName || formatAddress(post[1])}
               </Link>
               <p className="text-muted-foreground text-sm">@{formatAddress(post[1])}</p>
             </div>
