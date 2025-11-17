@@ -125,17 +125,17 @@ export default function Explore() {
                         <div className="flex items-center gap-6 pt-2">
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Heart className="h-4 w-4" />
-                            <span className="text-sm">{post.likeCount.toString()}</span>
+                            <span className="text-sm">{Number(post.likeCount || 0)}</span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <MessageCircle className="h-4 w-4" />
-                            <span className="text-sm">{post.commentCount.toString()}</span>
+                            <span className="text-sm">{Number(post.commentCount || 0)}</span>
                           </div>
                           
                           <div className="flex items-center gap-2 text-muted-foreground">
                             <Repeat2 className="h-4 w-4" />
-                            <span className="text-sm">{post.repostCount.toString()}</span>
+                            <span className="text-sm">{Number(post.repostCount || 0)}</span>
                           </div>
                         </div>
                       </div>
