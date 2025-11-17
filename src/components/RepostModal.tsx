@@ -1,12 +1,15 @@
 import { useState } from 'react';
-import { useWriteContract, useReadContract } from 'wagmi';
+import { useWriteContract } from 'wagmi';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from './ui/dialog';
 import { Button } from './ui/button';
 import { Textarea } from './ui/textarea';
+import { Alert, AlertDescription } from './ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 import { toast } from 'sonner';
 import { EmojiPicker } from './EmojiPicker';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
+import { useUsdcApprovalForFee } from '@/hooks/useUsdcApprovalForFee';
+import { AlertCircle } from 'lucide-react';
 
 interface RepostModalProps {
   open: boolean;
@@ -28,16 +31,24 @@ export function RepostModal({
   onSuccess,
 }: RepostModalProps) {
   const [content, setContent] = useState('');
-
-  const { data: feeAmount } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'feeAmount',
-  });
-
   const { writeContract, isPending } = useWriteContract();
+  
+  const {
+    hasAllowance,
+    isApproving,
+    handleApprove,
+    feeHuman,
+    balanceHuman,
+    balance,
+    feeAmount,
+  } = useUsdcApprovalForFee();
 
   const handleRepost = async () => {
+    if (!balance || !feeAmount || balance < feeAmount) {
+      toast.error(`Insufficient USDC balance. You need at least ${feeHuman} USDC.`);
+      return;
+    }
+
     writeContract({
       address: PULSECHAT_CONTRACT_ADDRESS,
       abi: PULSECHAT_ABI,
@@ -48,30 +59,36 @@ export function RepostModal({
         toast.success('Reposted successfully!');
         setContent('');
         onOpenChange(false);
-        onSuccess?.();
+        setTimeout(() => {
+          onSuccess?.();
+        }, 2000);
       },
       onError: (error) => {
+        console.error('Repost error:', error);
         toast.error('Failed to repost: ' + error.message);
       },
     });
   };
 
-  const feeHuman = feeAmount ? (Number(feeAmount) / 1e6).toFixed(2) : '0.01';
+  const insufficientBalance = balance && feeAmount ? balance < feeAmount : false;
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent>
+      <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Repost</DialogTitle>
+          <DialogTitle>Repost to your followers</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-4">
           <div>
+            <label className="text-sm text-muted-foreground mb-2 block">
+              Add your thoughts (optional)
+            </label>
             <div className="flex gap-2">
               <Textarea
                 value={content}
                 onChange={(e) => setContent(e.target.value)}
-                placeholder="Add your thoughts (optional)..."
+                placeholder="What do you think about this?"
                 className="flex-1 min-h-[100px]"
               />
               <EmojiPicker onEmojiSelect={(emoji) => setContent(content + emoji)} />
@@ -79,30 +96,59 @@ export function RepostModal({
           </div>
 
           <div className="border border-border/50 rounded-lg p-4 bg-muted/30">
+            <p className="text-xs text-muted-foreground mb-2">Reposting:</p>
             <div className="flex items-start gap-3">
-              <div className="w-10 h-10 rounded-full bg-gradient-pulse" />
+              <div className="w-10 h-10 rounded-full bg-gradient-pulse flex-shrink-0" />
               <div className="flex-1">
                 <p className="font-semibold text-sm">{formatAddress(originalAuthor)}</p>
-                <p className="text-xs text-muted-foreground">{formatTimestamp(timestamp)}</p>
-                <p className="mt-2 text-sm">{originalContent}</p>
+                <p className="text-xs text-muted-foreground mb-2">{formatTimestamp(timestamp)}</p>
+                <p className="text-sm text-foreground whitespace-pre-wrap break-words">{originalContent}</p>
               </div>
             </div>
           </div>
 
+          {insufficientBalance && (
+            <Alert variant="destructive">
+              <AlertCircle className="h-4 w-4" />
+              <AlertDescription>
+                Insufficient USDC balance. You have {balanceHuman} USDC but need {feeHuman} USDC to repost.
+              </AlertDescription>
+            </Alert>
+          )}
+
           <div className="bg-muted/50 p-3 rounded-lg text-sm">
             <p className="text-muted-foreground">
-              This action costs <span className="font-bold text-foreground">{feeHuman} USDC</span>
+              💡 Reposting costs <span className="font-bold text-foreground">{feeHuman} USDC</span> (on-chain fee)
             </p>
           </div>
 
-          <Button
-            onClick={handleRepost}
-            disabled={isPending}
-            variant="gradient"
-            className="w-full"
-          >
-            {isPending ? 'Reposting...' : `Repost (${feeHuman} USDC)`}
-          </Button>
+          <div className="flex gap-2">
+            {!hasAllowance ? (
+              <Button
+                onClick={handleApprove}
+                disabled={isApproving}
+                variant="outline"
+                className="flex-1"
+              >
+                {isApproving ? 'Approving USDC...' : 'Approve USDC First'}
+              </Button>
+            ) : (
+              <Button
+                onClick={handleRepost}
+                disabled={isPending || insufficientBalance}
+                variant="gradient"
+                className="flex-1"
+              >
+                {isPending ? 'Reposting...' : `Repost (${feeHuman} USDC)`}
+              </Button>
+            )}
+            <Button
+              onClick={() => onOpenChange(false)}
+              variant="ghost"
+            >
+              Cancel
+            </Button>
+          </div>
         </div>
       </DialogContent>
     </Dialog>

@@ -142,7 +142,7 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
                 className="gap-2 hover:text-pulse-cyan"
                 asChild
               >
-                <Link to={`/post/${post.id}`}>
+                <Link to={`/post/${post.id}`} title="View comments">
                   <MessageCircle className="h-4 w-4" />
                   <span className="text-sm">{post.commentCount.toString()}</span>
                 </Link>
@@ -153,6 +153,7 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
                 size="sm"
                 className="gap-2 hover:text-pulse-blue"
                 onClick={() => setRepostModalOpen(true)}
+                title="Repost this post"
               >
                 <Repeat2 className="h-4 w-4" />
                 <span className="text-sm">{post.repostCount.toString()}</span>
@@ -162,11 +163,12 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
                 variant="ghost"
                 size="sm"
                 className={cn(
-                  "gap-2 hover:text-pulse-magenta",
+                  "gap-2 hover:text-pulse-magenta transition-colors",
                   hasLiked && "text-pulse-magenta"
                 )}
                 onClick={handleLike}
                 disabled={isLiking}
+                title={hasLiked ? "You already liked this post" : "Like this post (free on-chain interaction)"}
               >
                 <Heart className={cn("h-4 w-4", hasLiked && "fill-current")} />
                 <span className="text-sm">{post.likeCount.toString()}</span>
