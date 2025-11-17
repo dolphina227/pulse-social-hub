@@ -1,32 +1,14 @@
 import { useState, useEffect } from 'react';
-import { useAccount, useWriteContract, useReadContract } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
-import { Textarea } from '@/components/ui/textarea';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
-import { AlertCircle } from 'lucide-react';
-import { toast } from 'sonner';
-import { EmojiPicker } from '@/components/EmojiPicker';
+import { AlertCircle, Plus } from 'lucide-react';
 import { PostCard } from '@/components/PostCard';
-import { MediaUpload } from '@/components/MediaUpload';
-import { USDCApproval } from '@/components/USDCApproval';
-import { useUsdcApprovalForFee } from '@/hooks/useUsdcApprovalForFee';
-
+import { CreatePostModal } from '@/components/CreatePostModal';
 export default function Index() {
-  const { isConnected, address } = useAccount();
-  const [content, setContent] = useState('');
-  const [mediaUrl, setMediaUrl] = useState('');
-  const { hasAllowance, feeHuman, feeAmount } = useUsdcApprovalForFee();
-
-  // Fetch current user profile
-  const { data: currentUserProfile } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'profiles',
-    args: address ? [address] : undefined,
-  }) as { data: any };
-
-  const currentUserAvatar = currentUserProfile?.[2] || '';
+  const { isConnected } = useAccount();
+  const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   const { data: latestPosts, refetch: refetchPosts } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
@@ -35,45 +17,11 @@ export default function Index() {
     args: [50n],
   });
 
-  const { writeContract, isPending } = useWriteContract();
-
-  const handlePost = async () => {
-    if (!content.trim() && !mediaUrl) {
-      toast.error('Please enter content or upload media');
-      return;
-    }
-
-    // Double-check allowance before posting
-    if (!hasAllowance) {
-      toast.error('USDC approval or balance is not sufficient. Please approve USDC first.');
-      return;
-    }
-
-    const postContent = mediaUrl ? `${content}\n\n[media:${mediaUrl}]` : content;
-
-    writeContract({
-      address: PULSECHAT_CONTRACT_ADDRESS,
-      abi: PULSECHAT_ABI,
-      functionName: 'createPost',
-      args: [postContent],
-    } as any, {
-      onSuccess: () => {
-        toast.success('Post created on-chain!');
-        setContent('');
-        setMediaUrl('');
-        setTimeout(() => refetchPosts(), 2000);
-      },
-      onError: (error) => {
-        toast.error('Failed to create post: ' + error.message);
-      },
-    });
-  };
-
   const posts = latestPosts || [];
 
   if (!isConnected) {
     return (
-      <div className="max-w-2xl mx-auto p-6 mt-16 md:mt-6">
+      <div className="max-w-2xl mx-auto p-6 mt-16 md:mt-6 px-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Please connect your wallet to view the feed</AlertDescription>
@@ -83,55 +31,23 @@ export default function Index() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 md:px-0 pt-20 lg:pt-6">
-      <div className="border-b border-border/50 p-4">
-        <div className="flex gap-2 sm:gap-4">
-          {currentUserAvatar ? (
-            <img src={currentUserAvatar} alt="Your profile" className="w-10 h-10 sm:w-12 sm:h-12 rounded-full object-cover flex-shrink-0" />
-          ) : (
-            <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
-          )}
-          <div className="flex-1">
-            <Textarea
-              value={content}
-              onChange={(e) => setContent(e.target.value)}
-              placeholder="What's happening on ProveChat?"
-              className="min-h-[100px] sm:min-h-[120px] resize-none border-0 focus-visible:ring-0 text-base sm:text-lg p-0"
-            />
-            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-border/50">
-              <div className="flex items-center gap-2">
-                <MediaUpload
-                  onMediaSelect={setMediaUrl}
-                  onMediaRemove={() => setMediaUrl('')}
-                  mediaUrl={mediaUrl}
-                />
-                <EmojiPicker onEmojiSelect={(emoji) => setContent(content + emoji)} />
-              </div>
-              
-              {!isConnected ? (
-                <div className="text-xs sm:text-sm text-muted-foreground w-full sm:w-auto">Connect wallet to post</div>
-              ) : !hasAllowance ? (
-                <USDCApproval />
-              ) : (
-                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
-                  <span className="text-xs sm:text-sm text-muted-foreground">Posting costs {feeHuman} USDC</span>
-                  <Button
-                    onClick={handlePost}
-                    disabled={isPending || (!content.trim() && !mediaUrl)}
-                    variant="gradient"
-                    size="lg"
-                    className="rounded-full px-6 w-full sm:w-auto"
-                  >
-                    {isPending ? 'Posting...' : 'Post'}
-                  </Button>
-                </div>
-              )}
-            </div>
-          </div>
-        </div>
-      </div>
+    <>
+      <CreatePostModal 
+        open={isPostModalOpen} 
+        onOpenChange={setIsPostModalOpen}
+        onPostCreated={() => setTimeout(() => refetchPosts(), 2000)}
+      />
 
-      <div>
+      <div className="max-w-2xl mx-auto px-4 md:px-0 pt-20 lg:pt-6">
+        {/* Floating Post Button for Mobile */}
+        <button
+          onClick={() => setIsPostModalOpen(true)}
+          className="lg:hidden fixed bottom-20 right-4 z-40 w-14 h-14 rounded-full bg-gradient-pulse flex items-center justify-center shadow-glow hover:scale-110 transition-transform"
+        >
+          <Plus className="h-6 w-6 text-background" />
+        </button>
+
+        <div>
         {posts.length > 0 ? (
           posts.map((post: any, index: number) => {
             // Fetch author profile for each post
@@ -188,6 +104,7 @@ export default function Index() {
           </div>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
