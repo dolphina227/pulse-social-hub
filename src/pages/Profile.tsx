@@ -13,6 +13,7 @@ import { toast } from 'sonner';
 import { uploadImage, validateImageFile } from '@/lib/storage';
 import { PostCard } from '@/components/PostCard';
 import { useRepost } from '@/hooks/useRepost';
+import { SetUsernameModal } from '@/components/SetUsernameModal';
 
 export default function Profile() {
   const { address: connectedAddress, isConnected } = useAccount();
@@ -25,9 +26,7 @@ export default function Profile() {
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
   const [uploading, setUploading] = useState(false);
-  const [tipModalOpen, setTipModalOpen] = useState(false);
-  const [plsModalOpen, setPlsModalOpen] = useState(false);
-  const [repostedPosts, setRepostedPosts] = useState<any[]>([]);
+  const [showSetupModal, setShowSetupModal] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const { getRepostedPosts } = useRepost(0n);
@@ -60,8 +59,13 @@ export default function Profile() {
       setName(profile[0] || '');
       setBio(profile[1] || '');
       setAvatar(profile[2] || '');
+      
+      // Show setup modal if user is viewing own profile and hasn't set a name
+      if (isOwnProfile && !profile[0] && isConnected) {
+        setShowSetupModal(true);
+      }
     }
-  }, [profile]);
+  }, [profile, isOwnProfile, isConnected]);
 
   // Get UI-only reposted post IDs
   const uiRepostedPostIds = isOwnProfile ? getRepostedPosts().map(r => r.postId) : [];
@@ -106,6 +110,11 @@ export default function Profile() {
     // Trigger refetch if needed
   };
 
+  const handleSetupComplete = () => {
+    // Refetch profile data after setup
+    window.location.reload();
+  };
+
   if (!isConnected) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -122,7 +131,15 @@ export default function Profile() {
   const createdAt = profile?.[3] ? Number(profile[3]) : 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20 md:pb-6 px-4 md:px-0 pt-20 lg:pt-6">
+    <>
+      {/* Setup Username Modal for new users */}
+      <SetUsernameModal
+        open={showSetupModal}
+        onOpenChange={setShowSetupModal}
+        onComplete={handleSetupComplete}
+      />
+      
+      <div className="max-w-4xl mx-auto space-y-6 pb-20 md:pb-6 px-4 md:px-0 pt-20 lg:pt-6">
       <Card className="glass-effect">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-6">
@@ -263,6 +280,7 @@ export default function Profile() {
           </Card>
         )}
       </div>
-    </div>
+      </div>
+    </>
   );
 }
