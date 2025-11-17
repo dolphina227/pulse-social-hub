@@ -29,11 +29,11 @@ interface PostCardProps {
   authorName?: string;
   authorAvatar?: string;
   onUpdate?: () => void;
-  isRepost?: boolean;
-  repostAuthor?: string;
+  showAsUiRepost?: boolean; // UI-only repost indicator
+  repostAuthor?: string; // For UI-only reposts
 }
 
-export function PostCard({ post, authorName, authorAvatar, onUpdate, isRepost, repostAuthor }: PostCardProps) {
+export function PostCard({ post, authorName, authorAvatar, onUpdate, showAsUiRepost, repostAuthor }: PostCardProps) {
   const [repostOptionsOpen, setRepostOptionsOpen] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [tipModalOpen, setTipModalOpen] = useState(false);
@@ -76,13 +76,25 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, isRepost, r
     }
   };
 
+  // Check if this is an on-chain quote (has isRepost=true and originalPostId)
+  const isOnChainQuote = post.isRepost && post.originalPostId > 0n;
+
   return (
     <>
       <div className="border-b border-border/50 p-4 hover:bg-muted/30 transition-colors">
-        {isRepost && repostAuthor && (
+        {/* UI-only repost indicator */}
+        {showAsUiRepost && repostAuthor && (
           <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
             <Repeat2 className="h-3.5 w-3.5" />
             <span className="text-xs">Reposted by {repostAuthor}</span>
+          </div>
+        )}
+        
+        {/* On-chain quote indicator */}
+        {isOnChainQuote && (
+          <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
+            <MessageCircle className="h-3.5 w-3.5" />
+            <span className="text-xs font-medium">Quoted post</span>
           </div>
         )}
 
@@ -110,20 +122,23 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, isRepost, r
             </div>
 
             <Link to={`/post/${post.id}`}>
-              {textContent && (
+              {/* For on-chain quotes: show user's comment first */}
+              {isOnChainQuote && textContent && (
                 <p className="text-foreground whitespace-pre-wrap break-words mb-3">
                   {textContent}
                 </p>
               )}
               
-              {post.isRepost && post.originalPostId > 0n && (
-                <div className="mb-3">
-                  <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
-                    <MessageCircle className="h-3 w-3" />
-                    <span>Quoted post:</span>
-                  </div>
-                  <QuotedPostCard postId={post.originalPostId} />
-                </div>
+              {/* For regular posts (not quotes): show content */}
+              {!isOnChainQuote && textContent && (
+                <p className="text-foreground whitespace-pre-wrap break-words mb-2">
+                  {textContent}
+                </p>
+              )}
+
+              {/* Show quoted/embedded original post for on-chain quotes */}
+              {isOnChainQuote && post.originalPostId > 0n && (
+                <QuotedPostCard postId={post.originalPostId} />
               )}
 
               {mediaUrls.length > 0 && (
