@@ -77,9 +77,9 @@ export default function Index() {
 
               return (
                 <PostCard
-                  key={index}
+                  key={post.id?.toString() || index}
                   post={{
-                    id: BigInt(index),
+                    id: post.id || BigInt(index),
                     author: post.author,
                     content: post.content,
                     timestamp: Number(post.timestamp),
