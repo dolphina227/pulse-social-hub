@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, Repeat2, MoreHorizontal } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, MoreHorizontal, DollarSign } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { Button } from './ui/button';
 import { useState } from 'react';
@@ -7,6 +7,7 @@ import { useWriteContract, useReadContract, useAccount } from 'wagmi';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 import { toast } from 'sonner';
 import { RepostModal } from './RepostModal';
+import { TipModal } from './TipModal';
 import { cn } from '@/lib/utils';
 
 interface Post {
@@ -31,6 +32,7 @@ interface PostCardProps {
 export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardProps) {
   const { address } = useAccount();
   const [repostModalOpen, setRepostModalOpen] = useState(false);
+  const [tipModalOpen, setTipModalOpen] = useState(false);
 
   // Parse media from content
   const parseContent = (content: string) => {
@@ -161,6 +163,16 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
                 <Heart className={cn("h-4 w-4", hasLiked && "fill-current")} />
                 <span className="text-sm">{post.likeCount.toString()}</span>
               </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 hover:text-pulse-purple"
+                onClick={() => setTipModalOpen(true)}
+              >
+                <DollarSign className="h-4 w-4" />
+                <span className="text-sm">Tip</span>
+              </Button>
             </div>
           </div>
         </div>
@@ -174,6 +186,15 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
         originalAuthor={post.author}
         timestamp={post.timestamp}
         onSuccess={onUpdate}
+      />
+
+      <TipModal
+        open={tipModalOpen}
+        onOpenChange={setTipModalOpen}
+        postId={post.id}
+        postAuthor={post.author as `0x${string}`}
+        authorName={authorName}
+        authorAvatar={authorAvatar}
       />
     </>
   );
