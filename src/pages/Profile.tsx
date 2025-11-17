@@ -214,28 +214,52 @@ export default function Profile() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Posts</h2>
         {userPosts && userPosts.length > 0 ? (
-          userPosts.map((post) => (
-            <Card key={post.id.toString()} className="glass-effect">
-              <CardContent className="pt-6">
-                <div className="space-y-3">
-                  <span className="text-xs text-muted-foreground">{formatTimestamp(Number(post.timestamp))}</span>
-                  <p className="whitespace-pre-wrap">{post.content}</p>
-                  
-                  <div className="flex gap-6 text-muted-foreground">
-                    <div className="flex items-center gap-2">
-                      <Heart className="h-4 w-4" />
-                      <span className="text-sm">{post.likeCount.toString()}</span>
-                    </div>
+          userPosts.map((post) => {
+            // Parse media from content
+            const mediaRegex = /\[media:(https?:\/\/[^\]]+)\]/g;
+            const matches = [...post.content.matchAll(mediaRegex)];
+            const mediaUrls = matches.map(match => match[1]);
+            const textContent = post.content.replace(mediaRegex, '').trim();
+
+            return (
+              <Card key={post.id.toString()} className="glass-effect">
+                <CardContent className="pt-6">
+                  <div className="space-y-3">
+                    <span className="text-xs text-muted-foreground">{formatTimestamp(Number(post.timestamp))}</span>
                     
-                    <div className="flex items-center gap-2">
-                      <MessageSquare className="h-4 w-4" />
-                      <span className="text-sm">{post.commentCount.toString()}</span>
+                    {textContent && (
+                      <p className="whitespace-pre-wrap">{textContent}</p>
+                    )}
+                    
+                    {mediaUrls.length > 0 && (
+                      <div className="rounded-xl overflow-hidden border border-border/50">
+                        {mediaUrls.map((url, index) => (
+                          <img
+                            key={index}
+                            src={url}
+                            alt="Post media"
+                            className="w-full h-auto object-cover"
+                          />
+                        ))}
+                      </div>
+                    )}
+                    
+                    <div className="flex gap-6 text-muted-foreground">
+                      <div className="flex items-center gap-2">
+                        <Heart className="h-4 w-4" />
+                        <span className="text-sm">{post.likeCount.toString()}</span>
+                      </div>
+                      
+                      <div className="flex items-center gap-2">
+                        <MessageSquare className="h-4 w-4" />
+                        <span className="text-sm">{post.commentCount.toString()}</span>
+                      </div>
                     </div>
                   </div>
-                </div>
-              </CardContent>
-            </Card>
-          ))
+                </CardContent>
+              </Card>
+            );
+          })
         ) : (
           <Card className="glass-effect">
             <CardContent className="py-12 text-center">
