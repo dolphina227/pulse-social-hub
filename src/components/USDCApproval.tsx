@@ -1,7 +1,5 @@
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { Button } from './ui/button';
-import { Alert, AlertDescription } from './ui/alert';
-import { CheckCircle2, AlertCircle } from 'lucide-react';
 import { PULSECHAT_CONTRACT_ADDRESS, USDC_ADDRESS, ERC20_ABI } from '@/lib/contracts';
 import { toast } from 'sonner';
 import { parseUnits } from 'viem';
@@ -53,40 +51,19 @@ export function USDCApproval() {
 
   if (needsApproval) {
     return (
-      <Alert className="mb-4 border-yellow-500/50 bg-yellow-500/10">
-        <AlertCircle className="h-4 w-4 text-yellow-500" />
-        <AlertDescription className="flex items-center justify-between">
-          <div>
-            <p className="font-semibold mb-1">USDC Approval Required</p>
-            <p className="text-sm text-muted-foreground">
-              You need to approve USDC before making posts, comments, or messages.
-              {balanceAmount > 0 
-                ? ` Your balance: ${balanceAmount.toFixed(2)} USDC`
-                : ' You need USDC in your wallet first.'}
-            </p>
-          </div>
-          <Button
-            onClick={handleApprove}
-            disabled={isPending || balanceAmount === 0}
-            variant="outline"
-            className="ml-4"
-          >
-            {isPending ? 'Approving...' : 'Approve USDC'}
-          </Button>
-        </AlertDescription>
-      </Alert>
+      <div className="mb-4 flex justify-center">
+        <Button
+          onClick={handleApprove}
+          disabled={isPending || balanceAmount === 0}
+          variant="gradient"
+          size="lg"
+          className="rounded-full px-8"
+        >
+          {isPending ? 'Approving USDC...' : 'Approve USDC to Continue'}
+        </Button>
+      </div>
     );
   }
 
-  return (
-    <Alert className="mb-4 border-green-500/50 bg-green-500/10">
-      <CheckCircle2 className="h-4 w-4 text-green-500" />
-      <AlertDescription>
-        <p className="font-semibold">USDC Approved</p>
-        <p className="text-sm text-muted-foreground">
-          Allowance: {allowanceAmount.toFixed(2)} USDC | Balance: {balanceAmount.toFixed(2)} USDC
-        </p>
-      </AlertDescription>
-    </Alert>
-  );
+  return null;
 }
