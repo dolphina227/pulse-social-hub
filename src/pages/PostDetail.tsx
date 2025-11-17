@@ -36,6 +36,14 @@ export default function PostDetail() {
     args: [postId, 100n],
   });
 
+  // Fetch author profile - MUST be called before any conditional returns
+  const { data: authorProfile } = useReadContract({
+    address: PULSECHAT_CONTRACT_ADDRESS,
+    abi: PULSECHAT_ABI,
+    functionName: 'profiles',
+    args: post ? [post[1] as `0x${string}`] : undefined,
+  }) as { data: any };
+
   const { isLiked, toggleLike, getPostLikeCount } = useLikePost(postId);
   const { isReposted, toggleRepost, getPostRepostCount } = useRepost(postId);
   
@@ -90,15 +98,18 @@ export default function PostDetail() {
     );
   }
 
-  // Fetch author profile
-  const { data: authorProfile } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'profiles',
-    args: post ? [post[1]] : undefined,
-  }) as { data: any };
-
+  // Parse author profile data
   const authorName = authorProfile?.[0] || '';
+  let authorDisplayName = '';
+  try {
+    const bioField = authorProfile?.[1] || '';
+    const parsed = JSON.parse(bioField);
+    authorDisplayName = parsed.displayName || '';
+  } catch {
+    authorDisplayName = '';
+  }
+  
+  const displayName = authorDisplayName || authorName || formatAddress(post[1]);
   const authorAvatar = authorProfile?.[2] || '';
 
   return (
@@ -120,15 +131,15 @@ export default function PostDetail() {
             ) : (
               <div className="w-12 h-12 rounded-full bg-gradient-pulse flex-shrink-0 flex items-center justify-center">
                 <span className="text-white font-bold">
-                  {authorName ? authorName.slice(0, 2).toUpperCase() : formatAddress(post[1]).slice(0, 2)}
+                  {displayName.slice(0, 2).toUpperCase()}
                 </span>
               </div>
             )}
             <div className="flex-1">
               <Link to={`/profile/${post[1]}`} className="font-semibold hover:underline">
-                {authorName || formatAddress(post[1])}
+                {displayName}
               </Link>
-              <p className="text-muted-foreground text-sm">@{formatAddress(post[1])}</p>
+              <p className="text-muted-foreground text-sm">@{authorName || formatAddress(post[1])}</p>
             </div>
           </div>
 
