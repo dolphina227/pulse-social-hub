@@ -1,4 +1,5 @@
 import { useAccount, useReadContract } from 'wagmi';
+import { Link } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
@@ -95,29 +96,60 @@ export default function Leaderboard() {
         <CardContent>
           {users.length > 0 ? (
             <div className="space-y-2">
-              {users.map((user, index) => (
-                <div
-                  key={user}
-                  className={`flex items-center gap-4 p-4 rounded-lg ${
-                    index < 3 ? 'bg-gradient-pulse-subtle border border-primary/20' : 'bg-muted/30'
-                  }`}
-                >
-                  <div className="w-8 h-8 rounded-full bg-gradient-pulse text-white font-bold text-sm flex items-center justify-center">
-                    {index + 1}
-                  </div>
+              {users.map((user, index) => {
+                // Component to fetch user profile
+                const UserRow = () => {
+                  const { data: userProfile } = useReadContract({
+                    address: PULSECHAT_CONTRACT_ADDRESS,
+                    abi: PULSECHAT_ABI,
+                    functionName: 'profiles',
+                    args: [user],
+                  }) as { data: any };
 
-                  <div className="w-10 h-10 rounded-full bg-gradient-pulse" />
+                  const profileName = userProfile?.[0] || '';
+                  const profileAvatar = userProfile?.[2] || '';
 
-                  <div className="flex-1">
-                    <p className="font-semibold">{formatAddress(user)}</p>
-                  </div>
+                  return (
+                    <Link
+                      to={`/profile/${user}`}
+                      key={user}
+                      className={`flex items-center gap-4 p-4 rounded-lg hover:scale-[1.02] transition-transform ${
+                        index < 3 ? 'bg-gradient-pulse-subtle border border-primary/20' : 'bg-muted/30'
+                      }`}
+                    >
+                      <div className="w-8 h-8 rounded-full bg-gradient-pulse text-white font-bold text-sm flex items-center justify-center flex-shrink-0">
+                        {index + 1}
+                      </div>
 
-                  <div className="text-right">
-                    <p className="font-bold text-lg gradient-pulse-text">{formatUSDC(fees[index])} USDC</p>
-                    <p className="text-xs text-muted-foreground">Fees Paid</p>
-                  </div>
-                </div>
-              ))}
+                      {profileAvatar ? (
+                        <img src={profileAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover flex-shrink-0" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center flex-shrink-0">
+                          <span className="text-sm font-bold text-white">
+                            {profileName ? profileName.slice(0, 2).toUpperCase() : formatAddress(user).slice(0, 2)}
+                          </span>
+                        </div>
+                      )}
+
+                      <div className="flex-1 min-w-0">
+                        <p className="font-semibold truncate">
+                          {profileName || formatAddress(user)}
+                        </p>
+                        <p className="text-xs text-muted-foreground truncate">
+                          @{formatAddress(user)}
+                        </p>
+                      </div>
+
+                      <div className="text-right flex-shrink-0">
+                        <p className="font-bold text-lg gradient-pulse-text">{formatUSDC(fees[index])} USDC</p>
+                        <p className="text-xs text-muted-foreground">Fees Paid</p>
+                      </div>
+                    </Link>
+                  );
+                };
+
+                return <UserRow key={index} />;
+              })}
             </div>
           ) : (
             <p className="text-center text-muted-foreground py-8">No data yet</p>
