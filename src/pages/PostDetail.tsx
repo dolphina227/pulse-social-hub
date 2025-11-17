@@ -36,24 +36,15 @@ export default function PostDetail() {
     args: [postId, 100n],
   });
 
-  const [displayLikeCount, setDisplayLikeCount] = useState(0);
-  const { isLiked, toggleLike } = useLikePost(postId);
+  const { isLiked, toggleLike, getPostLikeCount } = useLikePost(postId);
   const { isReposted, toggleRepost, getPostRepostCount } = useRepost(postId);
-
-  // Update display counts when post data loads
-  useEffect(() => {
-    if (post) {
-      setDisplayLikeCount(Number(post[4] || 0));
-    }
-  }, [post]);
   
-  // Calculate total repost count (on-chain + UI-only)
+  // Calculate total counts (on-chain + UI-only)
+  const totalLikeCount = (post ? Number(post[4] || 0) : 0) + getPostLikeCount();
   const totalRepostCount = (post ? Number(post[6] || 0) : 0) + getPostRepostCount();
 
   const handleLike = () => {
-    const currentCount = Number(post?.[4] || 0);
-    const newCount = toggleLike(currentCount);
-    setDisplayLikeCount(newCount);
+    toggleLike();
     
     if (isLiked) {
       toast.success('Removed like');
@@ -148,7 +139,7 @@ export default function PostDetail() {
               title={isLiked ? "Unlike this post" : "Like this post"}
             >
               <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
-              <span>{displayLikeCount}</span>
+              <span>{totalLikeCount}</span>
             </Button>
 
             <div className="flex items-center gap-2 text-muted-foreground">
