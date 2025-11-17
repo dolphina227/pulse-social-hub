@@ -1,5 +1,5 @@
 import { useParams, Link } from 'react-router-dom';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useAccount, useReadContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
@@ -42,12 +42,12 @@ export default function PostDetail() {
   const { isReposted, toggleRepost } = useRepost(postId);
 
   // Update display counts when post data loads
-  if (post && displayLikeCount === 0) {
-    setDisplayLikeCount(Number(post[4] || 0));
-  }
-  if (post && displayRepostCount === 0) {
-    setDisplayRepostCount(Number(post[6] || 0));
-  }
+  useEffect(() => {
+    if (post) {
+      setDisplayLikeCount(Number(post[4] || 0));
+      setDisplayRepostCount(Number(post[6] || 0));
+    }
+  }, [post]);
 
   const handleLike = () => {
     const currentCount = Number(post?.[4] || 0);
