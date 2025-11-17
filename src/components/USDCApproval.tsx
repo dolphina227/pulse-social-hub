@@ -51,15 +51,16 @@ export function USDCApproval() {
 
   if (needsApproval) {
     return (
-      <div className="mb-4 flex justify-center">
+      <div className="flex items-center justify-end gap-3">
+        <span className="text-sm text-muted-foreground">Need USDC approval first</span>
         <Button
           onClick={handleApprove}
           disabled={isPending || balanceAmount === 0}
           variant="gradient"
           size="lg"
-          className="rounded-full px-8"
+          className="rounded-full px-6"
         >
-          {isPending ? 'Approving USDC...' : 'Approve USDC to Continue'}
+          {isPending ? 'Approving...' : 'Approve'}
         </Button>
       </div>
     );
