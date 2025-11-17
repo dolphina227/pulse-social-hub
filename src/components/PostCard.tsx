@@ -55,6 +55,11 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
   const { writeContract, isPending: isLiking } = useWriteContract();
 
   const handleLike = () => {
+    if (hasLiked) {
+      toast.error('You already liked this post');
+      return;
+    }
+
     writeContract({
       address: PULSECHAT_CONTRACT_ADDRESS,
       abi: PULSECHAT_ABI,
@@ -63,10 +68,13 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
     } as any, {
       onSuccess: () => {
         toast.success('Post liked!');
-        refetchLiked();
-        onUpdate?.();
+        setTimeout(() => {
+          refetchLiked();
+          onUpdate?.();
+        }, 2000);
       },
       onError: (error) => {
+        console.error('Like error:', error);
         toast.error('Failed to like: ' + error.message);
       },
     });
@@ -158,7 +166,7 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
                   hasLiked && "text-pulse-magenta"
                 )}
                 onClick={handleLike}
-                disabled={isLiking || hasLiked}
+                disabled={isLiking}
               >
                 <Heart className={cn("h-4 w-4", hasLiked && "fill-current")} />
                 <span className="text-sm">{post.likeCount.toString()}</span>
