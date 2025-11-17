@@ -85,9 +85,16 @@ export function QuoteModal({
         </DialogHeader>
 
         <div className="space-y-4">
+          <Alert className="bg-blue-500/10 border-blue-500/20">
+            <AlertCircle className="h-4 w-4 text-blue-500" />
+            <AlertDescription className="text-blue-500">
+              Quoting creates an on-chain post and costs {feeHuman} USDC
+            </AlertDescription>
+          </Alert>
+
           <div>
             <label className="text-sm text-muted-foreground mb-2 block">
-              Add your thoughts
+              Add your thoughts (required)
             </label>
             <div className="flex gap-2">
               <Textarea

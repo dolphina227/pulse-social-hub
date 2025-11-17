@@ -286,58 +286,51 @@ export default function Profile() {
         <Card className="glass-effect">
           <CardContent className="pt-6 text-center">
             <p className="text-2xl font-bold text-pulse-purple">{userStats?.[6]?.toString() || '0'}</p>
-            <p className="text-sm text-muted-foreground">Reposts</p>
+            <p className="text-sm text-muted-foreground">Quotes</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="space-y-0">
-        <h2 className="text-xl font-semibold mb-4 px-4 pt-4">Posts & Reposts</h2>
+        <h2 className="text-xl font-semibold mb-4 px-4 pt-4">Posts & Quotes</h2>
         
-        {/* Display reposted posts */}
-        {isOwnProfile && repostedPosts.length > 0 && repostedPosts.map((repost) => {
-          const post = parsePostData(repost.rawData);
-          return (
-            <PostCard
-              key={`repost-${repost.postId}-${repost.timestamp}`}
-              post={post}
-              authorName={post.author ? undefined : formatAddress(post.author)}
-              authorAvatar={undefined}
-              onUpdate={refetchPosts}
-              isRepost={true}
-              repostAuthor={displayName || formatAddress(profileAddress)}
-            />
-          );
-        })}
+        {/* Note: UI-only reposts are displayed mixed with original posts below */}
         
-        {/* Display original posts */}
+        {/* Display all posts (original posts + on-chain quotes) */}
         {userPosts && userPosts.length > 0 ? (
-          userPosts.map((post: any) => (
-            <PostCard
-              key={post.id?.toString()}
-              post={{
-                id: post.id,
-                author: post.author,
-                content: post.content,
-                timestamp: Number(post.timestamp),
-                likeCount: Number(post.likeCount || 0),
-                commentCount: Number(post.commentCount || 0),
-                repostCount: Number(post.repostCount || 0),
-                isRepost: post.isRepost || false,
-                originalPostId: post.originalPostId || 0n,
-              }}
-              authorName={displayName}
-              authorAvatar={avatar}
-              onUpdate={refetchPosts}
-            />
-          ))
-        ) : !isOwnProfile || repostedPosts.length === 0 ? (
+          userPosts.map((post: any) => {
+            // Check if this post is a UI-only repost
+            const uiRepost = isOwnProfile && repostedPosts.find(r => r.postId === post.id?.toString());
+            
+            return (
+              <PostCard
+                key={post.id?.toString()}
+                post={{
+                  id: post.id,
+                  author: post.author,
+                  content: post.content,
+                  timestamp: Number(post.timestamp),
+                  likeCount: Number(post.likeCount || 0),
+                  commentCount: Number(post.commentCount || 0),
+                  repostCount: Number(post.repostCount || 0),
+                  isRepost: post.isRepost || !!uiRepost,
+                  originalPostId: post.originalPostId || 0n,
+                }}
+                authorName={displayName}
+                authorAvatar={avatar}
+                onUpdate={refetchPosts}
+                isRepost={!!uiRepost}
+                repostAuthor={uiRepost ? (displayName || formatAddress(profileAddress)) : undefined}
+              />
+            );
+          })
+        ) : (
           <Card className="glass-effect mx-4">
             <CardContent className="pt-6 text-center text-muted-foreground">
               <p>No posts yet.</p>
             </CardContent>
           </Card>
-        ) : null}
+        )}
       </div>
     </div>
   );
