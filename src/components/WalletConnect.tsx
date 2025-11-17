@@ -4,18 +4,30 @@ import { formatAddress } from '@/lib/utils/format';
 import { Wallet, LogOut, AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { pulsechainMainnet } from '@/lib/wagmi';
+import { toast } from 'sonner';
 
 export function WalletConnect() {
   const { address, isConnected, chain } = useAccount();
-  const { connect, connectors } = useConnect();
+  const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
 
   const isWrongNetwork = isConnected && chain?.id !== pulsechainMainnet.id;
 
+  const handleConnect = () => {
+    const connector = connectors[0];
+    
+    if (!connector) {
+      toast.error('Wallet tidak terdeteksi. Silakan install MetaMask atau Rabby.');
+      return;
+    }
+
+    connect({ connector });
+  };
+
   if (isConnected && address) {
     return (
-      <div className="flex items-center gap-3">
+      <div className="flex items-center gap-3 flex-wrap">
         {isWrongNetwork && (
           <Alert variant="destructive" className="py-2 px-3">
             <AlertCircle className="h-4 w-4" />
@@ -53,11 +65,12 @@ export function WalletConnect() {
   return (
     <Button
       variant="gradient"
-      onClick={() => connect({ connector: connectors[0] })}
+      onClick={handleConnect}
+      disabled={isPending}
       className="gap-2"
     >
       <Wallet className="h-4 w-4" />
-      Connect Wallet
+      {isPending ? 'Connecting...' : 'Connect Wallet'}
     </Button>
   );
 }
