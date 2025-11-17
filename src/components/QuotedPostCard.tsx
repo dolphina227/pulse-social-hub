@@ -43,18 +43,18 @@ export function QuotedPostCard({ postId }: QuotedPostCardProps) {
   const authorAvatar = originalAuthorProfile?.[2];
 
   return (
-    <div className="border border-border/50 rounded-lg p-4 bg-muted/30 hover:bg-muted/40 transition-colors">
-      <div className="flex gap-3">
+    <div className="border border-border rounded-xl p-3 mt-3 hover:bg-muted/20 transition-colors cursor-pointer">
+      <div className="flex gap-2">
         <div className="flex-shrink-0">
           {authorAvatar ? (
-            <img src={authorAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
+            <img src={authorAvatar} alt="Avatar" className="w-8 h-8 rounded-full object-cover" />
           ) : (
-            <div className="w-10 h-10 rounded-full bg-gradient-pulse" />
+            <div className="w-8 h-8 rounded-full bg-gradient-pulse" />
           )}
         </div>
 
         <div className="flex-1 min-w-0">
-          <div className="flex items-center gap-2 mb-1">
+          <div className="flex items-center gap-1.5 mb-1">
             <p className="font-semibold text-sm">{authorName}</p>
             <span className="text-muted-foreground text-xs">
               @{formatAddress(originalPost[1])}
@@ -66,13 +66,13 @@ export function QuotedPostCard({ postId }: QuotedPostCardProps) {
           </div>
 
           {textContent && (
-            <p className="text-sm text-foreground whitespace-pre-wrap break-words mb-2">
+            <p className="text-sm text-foreground/90 whitespace-pre-wrap break-words mb-2">
               {textContent}
             </p>
           )}
 
           {mediaUrls.length > 0 && (
-            <div className="rounded-lg overflow-hidden border border-border/30">
+            <div className="rounded-lg overflow-hidden border border-border/30 mt-2">
               {mediaUrls.map((url, index) => (
                 <img
                   key={index}
