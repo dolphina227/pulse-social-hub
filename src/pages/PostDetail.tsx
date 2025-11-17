@@ -1,6 +1,6 @@
 import { useParams, Link } from 'react-router-dom';
 import { useState } from 'react';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useReadContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
@@ -10,10 +10,11 @@ import { toast } from 'sonner';
 import { RepostModal } from '@/components/RepostModal';
 import { CommentComposer } from '@/components/CommentComposer';
 import { cn } from '@/lib/utils';
+import { useLikePost } from '@/hooks/useLikePost';
 
 export default function PostDetail() {
   const { id } = useParams();
-  const { address, isConnected } = useAccount();
+  const { isConnected } = useAccount();
   const [repostModalOpen, setRepostModalOpen] = useState(false);
 
   const postId = id ? BigInt(id) : 0n;
@@ -32,40 +33,24 @@ export default function PostDetail() {
     args: [postId, 100n],
   });
 
-  const { writeContract, isPending: isLiking } = useWriteContract();
+  const [displayLikeCount, setDisplayLikeCount] = useState(0);
+  const { isLiked, toggleLike } = useLikePost(postId);
 
-  const { data: hasLiked, refetch: refetchLiked } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI as any,
-    functionName: 'hasLikedPost',
-    args: [postId, address || '0x0'],
-    query: { enabled: !!address },
-  }) as { data: boolean; refetch: () => void };
+  // Update display count when post data loads
+  if (post && displayLikeCount === 0) {
+    setDisplayLikeCount(Number(post[4] || 0));
+  }
 
   const handleLike = () => {
-    if (hasLiked) {
-      toast.error('You already liked this post');
-      return;
+    const currentCount = Number(post?.[4] || 0);
+    const newCount = toggleLike(currentCount);
+    setDisplayLikeCount(newCount);
+    
+    if (isLiked) {
+      toast.success('Removed like');
+    } else {
+      toast.success('Post liked!');
     }
-
-    writeContract({
-      address: PULSECHAT_CONTRACT_ADDRESS,
-      abi: PULSECHAT_ABI,
-      functionName: 'likePost',
-      args: [postId],
-    } as any, {
-      onSuccess: () => {
-        toast.success('Post liked! (Free on-chain interaction)');
-        setTimeout(() => {
-          refetchLiked();
-          refetchPost();
-        }, 2000);
-      },
-      onError: (error) => {
-        console.error('Like error:', error);
-        toast.error('Failed to like: ' + error.message);
-      },
-    });
   };
 
   const handleCommentSuccess = () => {
@@ -138,14 +123,13 @@ export default function PostDetail() {
               size="sm"
               className={cn(
                 "gap-2 hover:text-pulse-magenta transition-colors",
-                hasLiked && "text-pulse-magenta"
+                isLiked && "text-pulse-magenta"
               )}
               onClick={handleLike}
-              disabled={isLiking}
-              title={hasLiked ? "You already liked this post" : "Like this post (free on-chain interaction)"}
+              title={isLiked ? "Unlike this post" : "Like this post"}
             >
-              <Heart className={cn("h-5 w-5", hasLiked && "fill-current")} />
-              <span>{post[4]?.toString() || '0'}</span>
+              <Heart className={cn("h-5 w-5", isLiked && "fill-current")} />
+              <span>{displayLikeCount}</span>
             </Button>
 
             <div className="flex items-center gap-2 text-muted-foreground">

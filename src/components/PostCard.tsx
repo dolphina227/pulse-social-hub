@@ -1,14 +1,13 @@
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, Repeat2, MoreHorizontal, DollarSign } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, DollarSign } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { Button } from './ui/button';
 import { useState } from 'react';
-import { useWriteContract, useReadContract, useAccount } from 'wagmi';
-import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 import { toast } from 'sonner';
 import { RepostModal } from './RepostModal';
 import { TipModal } from './TipModal';
 import { cn } from '@/lib/utils';
+import { useLikePost } from '@/hooks/useLikePost';
 
 interface Post {
   id: bigint;
@@ -30,9 +29,11 @@ interface PostCardProps {
 }
 
 export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardProps) {
-  const { address } = useAccount();
   const [repostModalOpen, setRepostModalOpen] = useState(false);
   const [tipModalOpen, setTipModalOpen] = useState(false);
+  const [displayLikeCount, setDisplayLikeCount] = useState(post.likeCount);
+
+  const { isLiked, toggleLike } = useLikePost(post.id);
 
   // Parse media from content
   const parseContent = (content: string) => {
@@ -45,39 +46,15 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
 
   const { textContent, mediaUrls } = parseContent(post.content);
 
-  const { data: hasLiked, refetch: refetchLiked } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI as any,
-    functionName: 'hasLikedPost',
-    args: [post.id, address || '0x0'],
-  }) as { data: boolean; refetch: () => void };
-
-  const { writeContract, isPending: isLiking } = useWriteContract();
-
   const handleLike = () => {
-    if (hasLiked) {
-      toast.error('You already liked this post');
-      return;
+    const newCount = toggleLike(displayLikeCount);
+    setDisplayLikeCount(newCount);
+    
+    if (isLiked) {
+      toast.success('Removed like');
+    } else {
+      toast.success('Post liked!');
     }
-
-    writeContract({
-      address: PULSECHAT_CONTRACT_ADDRESS,
-      abi: PULSECHAT_ABI,
-      functionName: 'likePost',
-      args: [post.id],
-    } as any, {
-      onSuccess: () => {
-        toast.success('Post liked!');
-        setTimeout(() => {
-          refetchLiked();
-          onUpdate?.();
-        }, 2000);
-      },
-      onError: (error) => {
-        console.error('Like error:', error);
-        toast.error('Failed to like: ' + error.message);
-      },
-    });
   };
 
   return (
@@ -164,14 +141,13 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
                 size="sm"
                 className={cn(
                   "gap-2 hover:text-pulse-magenta transition-colors",
-                  hasLiked && "text-pulse-magenta"
+                  isLiked && "text-pulse-magenta"
                 )}
                 onClick={handleLike}
-                disabled={isLiking}
-                title={hasLiked ? "You already liked this post" : "Like this post (free on-chain interaction)"}
+                title={isLiked ? "Unlike this post" : "Like this post"}
               >
-                <Heart className={cn("h-4 w-4", hasLiked && "fill-current")} />
-                <span className="text-sm">{post.likeCount.toString()}</span>
+                <Heart className={cn("h-4 w-4", isLiked && "fill-current")} />
+                <span className="text-sm">{displayLikeCount.toString()}</span>
               </Button>
 
               <Button
