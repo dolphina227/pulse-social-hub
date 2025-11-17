@@ -7,7 +7,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
-import { Calendar, MessageSquare, Heart, Edit, AlertCircle, Upload } from 'lucide-react';
+import { Calendar, MessageSquare, MessageCircle, Heart, Edit, AlertCircle, Upload, Repeat2 } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { toast } from 'sonner';
 import { uploadImage, validateImageFile } from '@/lib/storage';
@@ -214,7 +214,7 @@ export default function Profile() {
       <div className="space-y-4">
         <h2 className="text-xl font-semibold">Posts</h2>
         {userPosts && userPosts.length > 0 ? (
-          userPosts.map((post) => {
+          userPosts.map((post: any) => {
             // Parse media from content
             const mediaRegex = /\[media:(https?:\/\/[^\]]+)\]/g;
             const matches = [...post.content.matchAll(mediaRegex)];
@@ -222,37 +222,63 @@ export default function Profile() {
             const textContent = post.content.replace(mediaRegex, '').trim();
 
             return (
-              <Card key={post.id.toString()} className="glass-effect">
+              <Card key={post.id?.toString()} className="glass-effect border-border/50 hover:border-primary/20 transition-all">
                 <CardContent className="pt-6">
-                  <div className="space-y-3">
-                    <span className="text-xs text-muted-foreground">{formatTimestamp(Number(post.timestamp))}</span>
-                    
-                    {textContent && (
-                      <p className="whitespace-pre-wrap">{textContent}</p>
-                    )}
-                    
-                    {mediaUrls.length > 0 && (
-                      <div className="rounded-xl overflow-hidden border border-border/50">
-                        {mediaUrls.map((url, index) => (
-                          <img
-                            key={index}
-                            src={url}
-                            alt="Post media"
-                            className="w-full h-auto object-cover"
-                          />
-                        ))}
+                  <div className="flex gap-4">
+                    {avatar ? (
+                      <img src={avatar} alt="Avatar" className="w-10 h-10 rounded-full flex-shrink-0 object-cover" />
+                    ) : (
+                      <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center flex-shrink-0">
+                        <span className="text-sm font-bold text-white">
+                          {displayName.slice(0, 2).toUpperCase()}
+                        </span>
                       </div>
                     )}
                     
-                    <div className="flex gap-6 text-muted-foreground">
-                      <div className="flex items-center gap-2">
-                        <Heart className="h-4 w-4" />
-                        <span className="text-sm">{post.likeCount.toString()}</span>
+                    <div className="flex-1 space-y-3">
+                      <div className="flex items-center gap-2 flex-wrap">
+                        <span className="font-semibold text-sm">{displayName}</span>
+                        <span className="text-xs text-muted-foreground">@{formatAddress(profileAddress)}</span>
+                        <span className="text-xs text-muted-foreground">{formatTimestamp(Number(post.timestamp))}</span>
+                        {post.isRepost && (
+                          <span className="text-xs text-pulse-cyan">
+                            Reposted from #{post.originalPostId?.toString()}
+                          </span>
+                        )}
                       </div>
                       
-                      <div className="flex items-center gap-2">
-                        <MessageSquare className="h-4 w-4" />
-                        <span className="text-sm">{post.commentCount.toString()}</span>
+                      {textContent && (
+                        <p className="text-foreground whitespace-pre-wrap break-words">{textContent}</p>
+                      )}
+                      
+                      {mediaUrls.length > 0 && (
+                        <div className="rounded-xl overflow-hidden border border-border/50">
+                          {mediaUrls.map((url, index) => (
+                            <img
+                              key={index}
+                              src={url}
+                              alt="Post media"
+                              className="w-full h-auto object-cover"
+                            />
+                          ))}
+                        </div>
+                      )}
+                      
+                      <div className="flex items-center gap-6 pt-2">
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Heart className="h-4 w-4" />
+                          <span className="text-sm">{Number(post.likeCount || 0)}</span>
+                        </div>
+                        
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <MessageCircle className="h-4 w-4" />
+                          <span className="text-sm">{Number(post.commentCount || 0)}</span>
+                        </div>
+
+                        <div className="flex items-center gap-2 text-muted-foreground">
+                          <Repeat2 className="h-4 w-4" />
+                          <span className="text-sm">{Number(post.repostCount || 0)}</span>
+                        </div>
                       </div>
                     </div>
                   </div>

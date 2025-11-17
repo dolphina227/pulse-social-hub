@@ -20,11 +20,11 @@ export default function PostDetail() {
 
   const postId = id ? BigInt(id) : 0n;
 
-  const { data: latestPosts, refetch: refetchPosts } = useReadContract({
+  const { data: post, refetch: refetchPost } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
     abi: PULSECHAT_ABI,
-    functionName: 'getLatestPosts',
-    args: [1000n],
+    functionName: 'posts',
+    args: [postId],
   });
 
   const { data: comments, refetch: refetchComments } = useReadContract({
@@ -41,8 +41,6 @@ export default function PostDetail() {
   });
 
   const { writeContract, isPending } = useWriteContract();
-
-  const post = latestPosts?.[Number(postId)];
 
   const { data: hasLiked, refetch: refetchLiked } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
@@ -69,7 +67,7 @@ export default function PostDetail() {
         setCommentContent('');
         setTimeout(() => {
           refetchComments();
-          refetchPosts();
+          refetchPost();
         }, 2000);
       },
       onError: (error) => {
@@ -87,8 +85,10 @@ export default function PostDetail() {
     } as any, {
       onSuccess: () => {
         toast.success('Post liked!');
-        refetchLiked();
-        refetchPosts();
+        setTimeout(() => {
+          refetchLiked();
+          refetchPost();
+        }, 2000);
       },
       onError: (error) => {
         toast.error('Failed to like: ' + error.message);
@@ -136,25 +136,25 @@ export default function PostDetail() {
           <div className="flex gap-3 mb-4">
             <div className="w-12 h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
             <div className="flex-1">
-              <Link to={`/profile/${post.author}`} className="font-semibold hover:underline">
-                {formatAddress(post.author)}
+              <Link to={`/profile/${post[1]}`} className="font-semibold hover:underline">
+                {formatAddress(post[1])}
               </Link>
-              <p className="text-muted-foreground text-sm">@{formatAddress(post.author)}</p>
+              <p className="text-muted-foreground text-sm">@{formatAddress(post[1])}</p>
             </div>
           </div>
 
-          {post.isRepost && (
+          {post[7] && (
             <p className="text-sm text-pulse-cyan mb-2">
-              ↻ Repost of #{post.originalPostId?.toString()}
+              ↻ Repost of #{post[8]?.toString()}
             </p>
           )}
 
           <p className="text-foreground text-lg whitespace-pre-wrap break-words mb-4">
-            {post.content}
+            {post[2]}
           </p>
 
           <p className="text-muted-foreground text-sm mb-4">
-            {formatTimestamp(Number(post.timestamp))}
+            {formatTimestamp(Number(post[3]))}
           </p>
 
           <div className="flex items-center gap-6 py-3 border-t border-b border-border/50">
@@ -169,12 +169,12 @@ export default function PostDetail() {
               disabled={hasLiked}
             >
               <Heart className={cn("h-5 w-5", hasLiked && "fill-current")} />
-              <span>{post.likeCount?.toString() || '0'}</span>
+              <span>{post[4]?.toString() || '0'}</span>
             </Button>
 
             <div className="flex items-center gap-2">
               <MessageCircle className="h-5 w-5 text-muted-foreground" />
-              <span>{post.commentCount?.toString() || '0'}</span>
+              <span>{post[5]?.toString() || '0'}</span>
             </div>
 
             <Button
@@ -184,7 +184,7 @@ export default function PostDetail() {
               onClick={() => setRepostModalOpen(true)}
             >
               <Repeat2 className="h-5 w-5" />
-              <span>{post.repostCount?.toString() || '0'}</span>
+              <span>{post[6]?.toString() || '0'}</span>
             </Button>
           </div>
         </div>
@@ -256,10 +256,10 @@ export default function PostDetail() {
         open={repostModalOpen}
         onOpenChange={setRepostModalOpen}
         postId={postId}
-        originalContent={post.content}
-        originalAuthor={post.author}
-        timestamp={Number(post.timestamp)}
-        onSuccess={() => refetchPosts()}
+        originalContent={post[2]}
+        originalAuthor={post[1]}
+        timestamp={Number(post[3])}
+        onSuccess={() => refetchPost()}
       />
     </>
   );
