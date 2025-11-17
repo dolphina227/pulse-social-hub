@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { useAccount, useReadContract, useWriteContract } from 'wagmi';
+import { useAccount, useWriteContract, useReadContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
 import { Card, CardContent } from '@/components/ui/card';
@@ -11,17 +11,13 @@ import { EmojiPicker } from '@/components/EmojiPicker';
 import { PostCard } from '@/components/PostCard';
 import { MediaUpload } from '@/components/MediaUpload';
 import { USDCApproval } from '@/components/USDCApproval';
+import { useUsdcApprovalForFee } from '@/hooks/useUsdcApprovalForFee';
 
 export default function Index() {
   const { isConnected } = useAccount();
   const [content, setContent] = useState('');
   const [mediaUrl, setMediaUrl] = useState('');
-
-  const { data: feeAmount } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'feeAmount',
-  });
+  const { hasAllowance, feeHuman, feeAmount } = useUsdcApprovalForFee();
 
   const { data: latestPosts, refetch: refetchPosts } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
@@ -62,6 +58,12 @@ export default function Index() {
       return;
     }
 
+    // Double-check allowance before posting
+    if (!hasAllowance) {
+      toast.error('USDC approval or balance is not sufficient. Please approve USDC first.');
+      return;
+    }
+
     const postContent = mediaUrl ? `${content}\n\n[media:${mediaUrl}]` : content;
 
     writeContract({
@@ -71,7 +73,7 @@ export default function Index() {
       args: [postContent],
     } as any, {
       onSuccess: () => {
-        toast.success('Post created!');
+        toast.success('Post created on-chain!');
         setContent('');
         setMediaUrl('');
         setTimeout(() => refetchPosts(), 2000);
@@ -82,7 +84,6 @@ export default function Index() {
     });
   };
 
-  const feeHuman = feeAmount ? (Number(feeAmount) / 1e6).toFixed(2) : '0.01';
   const posts = latestPosts || [];
 
   if (!isConnected) {
@@ -148,19 +149,25 @@ export default function Index() {
                 />
                 <EmojiPicker onEmojiSelect={(emoji) => setContent(content + emoji)} />
               </div>
-              <USDCApproval />
-              <div className="flex items-center gap-3">
-                <span className="text-sm text-muted-foreground">Fee: {feeHuman} USDC</span>
-                <Button
-                  onClick={handlePost}
-                  disabled={isPending || (!content.trim() && !mediaUrl)}
-                  variant="gradient"
-                  size="lg"
-                  className="rounded-full px-6"
-                >
-                  {isPending ? 'Posting...' : 'Post'}
-                </Button>
-              </div>
+              
+              {!isConnected ? (
+                <div className="text-sm text-muted-foreground">Connect wallet to post</div>
+              ) : !hasAllowance ? (
+                <USDCApproval />
+              ) : (
+                <div className="flex items-center gap-3">
+                  <span className="text-sm text-muted-foreground">Posting costs {feeHuman} USDC</span>
+                  <Button
+                    onClick={handlePost}
+                    disabled={isPending || (!content.trim() && !mediaUrl)}
+                    variant="gradient"
+                    size="lg"
+                    className="rounded-full px-6"
+                  >
+                    {isPending ? 'Posting...' : 'Post'}
+                  </Button>
+                </div>
+              )}
             </div>
           </div>
         </div>
