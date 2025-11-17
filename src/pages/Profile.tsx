@@ -141,6 +141,39 @@ export default function Profile() {
     });
   };
 
+  const refetchPosts = () => {
+    // Trigger refetch if needed
+  };
+
+  const parsePostData = (rawData: string) => {
+    // Basic parsing - adjust based on actual data structure
+    try {
+      return {
+        id: BigInt('0x' + rawData.slice(2, 66)),
+        author: ('0x' + rawData.slice(90, 130)) as `0x${string}`,
+        content: '',
+        timestamp: 0,
+        likeCount: 0,
+        commentCount: 0,
+        repostCount: 0,
+        isRepost: false,
+        originalPostId: 0n,
+      };
+    } catch (e) {
+      return {
+        id: 0n,
+        author: '0x0000000000000000000000000000000000000000' as `0x${string}`,
+        content: '',
+        timestamp: 0,
+        likeCount: 0,
+        commentCount: 0,
+        repostCount: 0,
+        isRepost: false,
+        originalPostId: 0n,
+      };
+    }
+  };
+
   if (!isConnected) {
     return (
       <div className="max-w-4xl mx-auto">
@@ -258,8 +291,26 @@ export default function Profile() {
         </Card>
       </div>
 
-      <div className="space-y-4">
-        <h2 className="text-xl font-semibold">Posts & Reposts</h2>
+      <div className="space-y-0">
+        <h2 className="text-xl font-semibold mb-4 px-4 pt-4">Posts & Reposts</h2>
+        
+        {/* Display reposted posts */}
+        {isOwnProfile && repostedPosts.length > 0 && repostedPosts.map((repost) => {
+          const post = parsePostData(repost.rawData);
+          return (
+            <PostCard
+              key={`repost-${repost.postId}-${repost.timestamp}`}
+              post={post}
+              authorName={post.author ? undefined : formatAddress(post.author)}
+              authorAvatar={undefined}
+              onUpdate={refetchPosts}
+              isRepost={true}
+              repostAuthor={displayName || formatAddress(profileAddress)}
+            />
+          );
+        })}
+        
+        {/* Display original posts */}
         {userPosts && userPosts.length > 0 ? (
           userPosts.map((post: any) => (
             <PostCard
@@ -277,15 +328,16 @@ export default function Profile() {
               }}
               authorName={displayName}
               authorAvatar={avatar}
+              onUpdate={refetchPosts}
             />
           ))
-        ) : (
-          <Card className="glass-effect">
+        ) : !isOwnProfile || repostedPosts.length === 0 ? (
+          <Card className="glass-effect mx-4">
             <CardContent className="pt-6 text-center text-muted-foreground">
               <p>No posts yet.</p>
             </CardContent>
           </Card>
-        )}
+        ) : null}
       </div>
     </div>
   );
