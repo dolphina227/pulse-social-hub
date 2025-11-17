@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useAccount, useReadContract, useWriteContract } from 'wagmi';
 import { useParams } from 'react-router-dom';
 import { Card, CardContent, CardHeader } from '@/components/ui/card';
