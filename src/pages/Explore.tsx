@@ -35,7 +35,7 @@ export default function Explore() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20 md:pb-6 px-4 md:px-0 pt-16 lg:pt-0">
+    <div className="max-w-4xl mx-auto space-y-6 pb-20 md:pb-6 px-4 md:px-0 pt-20 lg:pt-6">
       <Card className="glass-effect">
         <CardContent className="pt-6">
           <div className="relative">

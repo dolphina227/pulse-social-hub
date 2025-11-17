@@ -73,7 +73,7 @@ export default function Index() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto px-4 md:px-0 pt-16 lg:pt-0">
+    <div className="max-w-2xl mx-auto px-4 md:px-0 pt-20 lg:pt-6">
       <div className="border-b border-border/50 p-4">
         <div className="flex gap-2 sm:gap-4">
           <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
