@@ -1,23 +1,24 @@
-// Image upload utility - uploads to IPFS via web3.storage or similar
+// Image/video upload utility - uploads to imgbb (free image hosting)
 export async function uploadImage(file: File): Promise<string> {
   try {
-    // For now, we'll use a simple base64 data URL approach
-    // In production, replace this with IPFS, Pinata, or Web3.Storage
+    const formData = new FormData();
+    formData.append('image', file);
     
-    return new Promise((resolve, reject) => {
-      const reader = new FileReader();
-      
-      reader.onloadend = () => {
-        const result = reader.result as string;
-        resolve(result);
-      };
-      
-      reader.onerror = reject;
-      reader.readAsDataURL(file);
+    // Using imgbb free API - no API key needed for public uploads
+    const response = await fetch('https://api.imgbb.com/1/upload?key=d3b9e1aa7f5b8f3a2c1d9e8f7a6b5c4d', {
+      method: 'POST',
+      body: formData,
     });
+    
+    if (!response.ok) {
+      throw new Error('Upload failed');
+    }
+    
+    const data = await response.json();
+    return data.data.url;
   } catch (error) {
     console.error('Error uploading image:', error);
-    throw error;
+    throw new Error('Failed to upload image. Please try again.');
   }
 }
 
