@@ -98,23 +98,51 @@ export default function Messages() {
           <CardHeader><h3 className="font-semibold">Conversations</h3></CardHeader>
           <CardContent className="space-y-2">
             {conversations.length > 0 ? (
-              conversations.map((convo) => (
-                <button
-                  key={convo.address}
-                  onClick={() => setSelectedConvo(convo.address)}
-                  className={`w-full text-left p-3 rounded-lg transition ${
-                    selectedConvo === convo.address ? 'bg-primary/10 border border-primary/20' : 'hover:bg-muted/50'
-                  }`}
-                >
-                  <div className="flex items-center gap-3">
-                    <div className="w-8 h-8 rounded-full bg-gradient-pulse" />
-                    <div className="flex-1 min-w-0">
-                      <p className="font-medium text-sm truncate">{formatAddress(convo.address)}</p>
-                      <p className="text-xs text-muted-foreground truncate">{convo.lastMessage.content.slice(0, 30)}...</p>
-                    </div>
-                  </div>
-                </button>
-              ))
+              conversations.map((convo) => {
+                // Component to fetch conversation partner profile
+                const ConversationItem = () => {
+                  const { data: partnerProfile } = useReadContract({
+                    address: PULSECHAT_CONTRACT_ADDRESS,
+                    abi: PULSECHAT_ABI,
+                    functionName: 'profiles',
+                    args: [convo.address as `0x${string}`],
+                  }) as { data: any };
+
+                  const profileName = partnerProfile?.[0] || '';
+                  const profileAvatar = partnerProfile?.[2] || '';
+
+                  return (
+                    <button
+                      onClick={() => setSelectedConvo(convo.address)}
+                      className={`w-full text-left p-3 rounded-lg transition ${
+                        selectedConvo === convo.address ? 'bg-primary/10 border border-primary/20' : 'hover:bg-muted/50'
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        {profileAvatar ? (
+                          <img src={profileAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
+                        ) : (
+                          <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center">
+                            <span className="text-sm font-bold text-white">
+                              {formatAddress(convo.address).slice(0, 2)}
+                            </span>
+                          </div>
+                        )}
+                        <div className="flex-1 min-w-0">
+                          <p className="font-medium text-sm truncate">
+                            {profileName || formatAddress(convo.address)}
+                          </p>
+                          <p className="text-xs text-muted-foreground truncate">
+                            {convo.lastMessage.content.slice(0, 30)}...
+                          </p>
+                        </div>
+                      </div>
+                    </button>
+                  );
+                };
+
+                return <ConversationItem key={convo.address} />;
+              })
             ) : (
               <p className="text-sm text-muted-foreground text-center py-8">No conversations</p>
             )}
@@ -123,9 +151,44 @@ export default function Messages() {
 
         <Card className="glass-effect md:col-span-2">
           <CardHeader>
-            <h3 className="font-semibold">
-              {selectedConvo ? `Chat with ${formatAddress(selectedConvo)}` : 'New Message'}
-            </h3>
+            {selectedConvo ? (
+              (() => {
+                const SelectedConvoHeader = () => {
+                  const { data: partnerProfile } = useReadContract({
+                    address: PULSECHAT_CONTRACT_ADDRESS,
+                    abi: PULSECHAT_ABI,
+                    functionName: 'profiles',
+                    args: [selectedConvo as `0x${string}`],
+                  }) as { data: any };
+
+                  const profileName = partnerProfile?.[0] || '';
+                  const profileAvatar = partnerProfile?.[2] || '';
+
+                  return (
+                    <div className="flex items-center gap-3">
+                      {profileAvatar ? (
+                        <img src={profileAvatar} alt="Avatar" className="w-10 h-10 rounded-full object-cover" />
+                      ) : (
+                        <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center">
+                          <span className="text-sm font-bold text-white">
+                            {formatAddress(selectedConvo).slice(0, 2)}
+                          </span>
+                        </div>
+                      )}
+                      <div>
+                        <h3 className="font-semibold">
+                          {profileName || formatAddress(selectedConvo)}
+                        </h3>
+                        <p className="text-xs text-muted-foreground">@{formatAddress(selectedConvo)}</p>
+                      </div>
+                    </div>
+                  );
+                };
+                return <SelectedConvoHeader />;
+              })()
+            ) : (
+              <h3 className="font-semibold">New Message</h3>
+            )}
           </CardHeader>
           <CardContent className="space-y-4">
             {!selectedConvo && (
