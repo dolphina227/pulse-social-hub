@@ -83,10 +83,9 @@ export default function Messages() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto pb-20 md:pb-6">
+    <div className="max-w-6xl mx-auto pb-20 md:pb-6 px-4 md:px-0 pt-16 lg:pt-0">
       <div className="mb-6">
-        <h1 className="text-3xl font-bold gradient-pulse-text">Messages</h1>
-        <Alert className="mt-4 border-pulse-cyan/20">
+        <Alert className="border-pulse-cyan/20">
           <AlertCircle className="h-4 w-4 text-pulse-cyan" />
           <AlertDescription className="text-sm">
             ⚠️ Messages are on-chain and publicly readable
