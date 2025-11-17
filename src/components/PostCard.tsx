@@ -70,9 +70,9 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, isRepost, r
     setDisplayRepostCount(newCount);
     
     if (isReposted) {
-      toast.success('Removed from your profile');
+      toast.success('Removed from your feed');
     } else {
-      toast.success('Reposted to your profile!');
+      toast.success('Reposted to your feed (no on-chain fee)');
     }
   };
 
@@ -81,8 +81,8 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, isRepost, r
       <div className="border-b border-border/50 p-4 hover:bg-muted/30 transition-colors">
         {isRepost && repostAuthor && (
           <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
-            <Repeat2 className="h-4 w-4" />
-            <span>Reposted by {repostAuthor}</span>
+            <Repeat2 className="h-3.5 w-3.5" />
+            <span className="text-xs">Reposted by {repostAuthor}</span>
           </div>
         )}
 
@@ -118,6 +118,10 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate, isRepost, r
               
               {post.isRepost && post.originalPostId > 0n && (
                 <div className="mb-3">
+                  <div className="text-xs text-muted-foreground mb-2 flex items-center gap-1">
+                    <MessageCircle className="h-3 w-3" />
+                    <span>Quoted post:</span>
+                  </div>
                   <QuotedPostCard postId={post.originalPostId} />
                 </div>
               )}

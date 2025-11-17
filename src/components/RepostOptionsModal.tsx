@@ -21,7 +21,7 @@ export function RepostOptionsModal({
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="max-w-sm">
         <DialogHeader>
-          <DialogTitle>Repost options</DialogTitle>
+          <DialogTitle>Share this post</DialogTitle>
         </DialogHeader>
 
         <div className="space-y-2">
@@ -37,7 +37,7 @@ export function RepostOptionsModal({
             <div className="flex-1 text-left">
               <p className="font-semibold">{isReposted ? 'Undo Repost' : 'Repost'}</p>
               <p className="text-xs text-muted-foreground">
-                {isReposted ? 'Remove from your profile' : 'Share instantly to your profile'}
+                {isReposted ? 'Remove from your feed' : 'Share instantly to your feed (no fee, UI only)'}
               </p>
             </div>
           </Button>
@@ -53,7 +53,7 @@ export function RepostOptionsModal({
             <MessageSquare className="h-5 w-5" />
             <div className="flex-1 text-left">
               <p className="font-semibold">Quote</p>
-              <p className="text-xs text-muted-foreground">Add your thoughts (costs USDC)</p>
+              <p className="text-xs text-muted-foreground">Add your comment (on-chain, costs USDC fee)</p>
             </div>
           </Button>
         </div>
