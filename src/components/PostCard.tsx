@@ -7,6 +7,7 @@ import { toast } from 'sonner';
 import { RepostOptionsModal } from './RepostOptionsModal';
 import { QuoteModal } from './QuoteModal';
 import { TipModal } from './TipModal';
+import { QuotedPostCard } from './QuotedPostCard';
 import { cn } from '@/lib/utils';
 import { useLikePost } from '@/hooks/useLikePost';
 import { useRepost } from '@/hooks/useRepost';
@@ -28,9 +29,11 @@ interface PostCardProps {
   authorName?: string;
   authorAvatar?: string;
   onUpdate?: () => void;
+  isRepost?: boolean;
+  repostAuthor?: string;
 }
 
-export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardProps) {
+export function PostCard({ post, authorName, authorAvatar, onUpdate, isRepost, repostAuthor }: PostCardProps) {
   const [repostOptionsOpen, setRepostOptionsOpen] = useState(false);
   const [quoteModalOpen, setQuoteModalOpen] = useState(false);
   const [tipModalOpen, setTipModalOpen] = useState(false);
@@ -76,6 +79,13 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
   return (
     <>
       <div className="border-b border-border/50 p-4 hover:bg-muted/30 transition-colors">
+        {isRepost && repostAuthor && (
+          <div className="flex items-center gap-2 mb-2 text-sm text-muted-foreground">
+            <Repeat2 className="h-4 w-4" />
+            <span>Reposted by {repostAuthor}</span>
+          </div>
+        )}
+
         <div className="flex gap-3">
           <div className="flex-shrink-0">
             {authorAvatar ? (
@@ -99,18 +109,19 @@ export function PostCard({ post, authorName, authorAvatar, onUpdate }: PostCardP
               </span>
             </div>
 
-            {post.isRepost && (
-              <p className="text-sm text-pulse-cyan mb-2">
-                ↻ Repost of #{post.originalPostId.toString()}
-              </p>
-            )}
-
             <Link to={`/post/${post.id}`}>
               {textContent && (
                 <p className="text-foreground whitespace-pre-wrap break-words mb-3">
                   {textContent}
                 </p>
               )}
+              
+              {post.isRepost && post.originalPostId > 0n && (
+                <div className="mb-3">
+                  <QuotedPostCard postId={post.originalPostId} />
+                </div>
+              )}
+
               {mediaUrls.length > 0 && (
                 <div className="mb-3 rounded-xl overflow-hidden border border-border/50">
                   {mediaUrls.map((url, index) => (
