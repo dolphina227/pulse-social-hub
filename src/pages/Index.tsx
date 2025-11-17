@@ -98,49 +98,49 @@ export default function Index() {
   }
 
   return (
-    <div className="max-w-2xl mx-auto pb-20 md:pb-6 pt-16 lg:pt-0">
+    <div className="max-w-2xl mx-auto pb-20 md:pb-6 pt-16 lg:pt-0 px-4 md:px-0">
       <div className="border-b border-border/50 p-4 sticky top-16 lg:top-0 bg-background/95 backdrop-blur z-10">
         <h2 className="text-xl font-bold">Home</h2>
       </div>
 
-      <div className="grid grid-cols-4 gap-4 p-4 border-b border-border/50">
+      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-4 border-b border-border/50">
         <Card className="glass-effect">
-          <CardContent className="pt-6 text-center">
-            <p className="text-2xl font-bold text-pulse-cyan">{totalPosts?.toString() || '0'}</p>
-            <p className="text-xs text-muted-foreground">Posts</p>
+          <CardContent className="pt-4 sm:pt-6 text-center">
+            <p className="text-lg sm:text-2xl font-bold text-pulse-cyan">{totalPosts?.toString() || '0'}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Posts</p>
           </CardContent>
         </Card>
         <Card className="glass-effect">
-          <CardContent className="pt-6 text-center">
-            <p className="text-2xl font-bold text-pulse-blue">{totalUsers?.toString() || '0'}</p>
-            <p className="text-xs text-muted-foreground">Users</p>
+          <CardContent className="pt-4 sm:pt-6 text-center">
+            <p className="text-lg sm:text-2xl font-bold text-pulse-blue">{totalUsers?.toString() || '0'}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Users</p>
           </CardContent>
         </Card>
         <Card className="glass-effect">
-          <CardContent className="pt-6 text-center">
-            <p className="text-2xl font-bold text-pulse-magenta">{totalComments?.toString() || '0'}</p>
-            <p className="text-xs text-muted-foreground">Comments</p>
+          <CardContent className="pt-4 sm:pt-6 text-center">
+            <p className="text-lg sm:text-2xl font-bold text-pulse-magenta">{totalComments?.toString() || '0'}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Comments</p>
           </CardContent>
         </Card>
         <Card className="glass-effect">
-          <CardContent className="pt-6 text-center">
-            <p className="text-2xl font-bold text-pulse-purple">{totalMessages?.toString() || '0'}</p>
-            <p className="text-xs text-muted-foreground">Messages</p>
+          <CardContent className="pt-4 sm:pt-6 text-center">
+            <p className="text-lg sm:text-2xl font-bold text-pulse-purple">{totalMessages?.toString() || '0'}</p>
+            <p className="text-[10px] sm:text-xs text-muted-foreground">Messages</p>
           </CardContent>
         </Card>
       </div>
 
       <div className="border-b border-border/50 p-4">
-        <div className="flex gap-4">
-          <div className="w-12 h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
+        <div className="flex gap-2 sm:gap-4">
+          <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full bg-gradient-pulse flex-shrink-0" />
           <div className="flex-1">
             <Textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               placeholder="What's happening on PulseChain?"
-              className="min-h-[120px] resize-none border-0 focus-visible:ring-0 text-lg p-0"
+              className="min-h-[100px] sm:min-h-[120px] resize-none border-0 focus-visible:ring-0 text-base sm:text-lg p-0"
             />
-            <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
+            <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 mt-4 pt-4 border-t border-border/50">
               <div className="flex items-center gap-2">
                 <MediaUpload
                   onMediaSelect={setMediaUrl}
@@ -151,18 +151,18 @@ export default function Index() {
               </div>
               
               {!isConnected ? (
-                <div className="text-sm text-muted-foreground">Connect wallet to post</div>
+                <div className="text-xs sm:text-sm text-muted-foreground w-full sm:w-auto">Connect wallet to post</div>
               ) : !hasAllowance ? (
                 <USDCApproval />
               ) : (
-                <div className="flex items-center gap-3">
-                  <span className="text-sm text-muted-foreground">Posting costs {feeHuman} USDC</span>
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-3 w-full sm:w-auto">
+                  <span className="text-xs sm:text-sm text-muted-foreground">Posting costs {feeHuman} USDC</span>
                   <Button
                     onClick={handlePost}
                     disabled={isPending || (!content.trim() && !mediaUrl)}
                     variant="gradient"
                     size="lg"
-                    className="rounded-full px-6"
+                    className="rounded-full px-6 w-full sm:w-auto"
                   >
                     {isPending ? 'Posting...' : 'Post'}
                   </Button>

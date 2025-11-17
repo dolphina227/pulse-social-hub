@@ -136,14 +136,14 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </nav>
 
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 border-b border-border/50 glass-effect">
-        <div className="flex items-center justify-between px-4 py-3">
-          <Link to="/" className="flex items-center gap-2">
-            <div className="h-8 w-8 rounded-full bg-gradient-pulse flex items-center justify-center">
-              <span className="text-sm font-bold text-white">P</span>
-            </div>
-            <h1 className="text-lg font-bold gradient-pulse-text">PULSECHAT</h1>
+        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
+          <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
+            <img src={pulsechatLogo} alt="PULSECHAT" className="h-8 w-8 sm:h-10 sm:w-10" />
+            <h1 className="text-base sm:text-lg font-bold gradient-pulse-text">PULSECHAT</h1>
           </Link>
-          <WalletConnect />
+          <div className="scale-90 sm:scale-100">
+            <WalletConnect />
+          </div>
         </div>
       </div>
     </div>
