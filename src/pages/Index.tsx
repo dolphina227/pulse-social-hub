@@ -9,10 +9,12 @@ import { AlertCircle } from 'lucide-react';
 import { toast } from 'sonner';
 import { EmojiPicker } from '@/components/EmojiPicker';
 import { PostCard } from '@/components/PostCard';
+import { MediaUpload } from '@/components/MediaUpload';
 
 export default function Index() {
   const { isConnected } = useAccount();
   const [content, setContent] = useState('');
+  const [mediaUrl, setMediaUrl] = useState('');
 
   const { data: feeAmount } = useReadContract({
     address: PULSECHAT_CONTRACT_ADDRESS,
@@ -54,20 +56,23 @@ export default function Index() {
   const { writeContract, isPending } = useWriteContract();
 
   const handlePost = async () => {
-    if (!content.trim()) {
-      toast.error('Please enter some content');
+    if (!content.trim() && !mediaUrl) {
+      toast.error('Please enter content or upload media');
       return;
     }
+
+    const postContent = mediaUrl ? `${content}\n\n[media:${mediaUrl}]` : content;
 
     writeContract({
       address: PULSECHAT_CONTRACT_ADDRESS,
       abi: PULSECHAT_ABI,
       functionName: 'createPost',
-      args: [content],
+      args: [postContent],
     } as any, {
       onSuccess: () => {
         toast.success('Post created!');
         setContent('');
+        setMediaUrl('');
         setTimeout(() => refetchPosts(), 2000);
       },
       onError: (error) => {
@@ -134,12 +139,19 @@ export default function Index() {
               className="min-h-[120px] resize-none border-0 focus-visible:ring-0 text-lg p-0"
             />
             <div className="flex items-center justify-between mt-4 pt-4 border-t border-border/50">
-              <EmojiPicker onEmojiSelect={(emoji) => setContent(content + emoji)} />
+              <div className="flex items-center gap-2">
+                <MediaUpload
+                  onMediaSelect={setMediaUrl}
+                  onMediaRemove={() => setMediaUrl('')}
+                  mediaUrl={mediaUrl}
+                />
+                <EmojiPicker onEmojiSelect={(emoji) => setContent(content + emoji)} />
+              </div>
               <div className="flex items-center gap-3">
                 <span className="text-sm text-muted-foreground">Fee: {feeHuman} USDC</span>
                 <Button
                   onClick={handlePost}
-                  disabled={isPending || !content.trim()}
+                  disabled={isPending || (!content.trim() && !mediaUrl)}
                   variant="gradient"
                   size="lg"
                   className="rounded-full px-6"
