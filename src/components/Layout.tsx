@@ -6,6 +6,7 @@ import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import pulsechatLogo from '@/assets/pulsechat-logo.png';
 import { CreatePostModal } from './CreatePostModal';
+import { NewUsersWidget } from './NewUsersWidget';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -98,25 +99,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               </div>
             </div>
 
-            <div className="glass-effect rounded-2xl p-4 space-y-4">
-              <h2 className="text-xl font-bold">Who to follow</h2>
-              <div className="space-y-3">
-                {[1, 2, 3].map((i) => (
-                  <div key={i} className="flex items-center justify-between">
-                    <div className="flex items-center gap-3">
-                      <div className="w-10 h-10 rounded-full bg-gradient-pulse" />
-                      <div>
-                        <p className="font-semibold text-sm">User {i}</p>
-                        <p className="text-xs text-muted-foreground">@user{i}</p>
-                      </div>
-                    </div>
-                    <Button variant="outline" size="sm" className="rounded-full">
-                      Follow
-                    </Button>
-                  </div>
-                ))}
-              </div>
-            </div>
+            <NewUsersWidget />
           </div>
         </aside>
       </div>
