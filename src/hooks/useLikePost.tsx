@@ -1,69 +1,101 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
 
+interface LikedPost {
+  postId: string;
+  timestamp: number;
+}
+
 interface LikedPosts {
-  [postId: string]: boolean;
+  [address: string]: LikedPost[];
 }
 
 export function useLikePost(postId: bigint) {
   const { address } = useAccount();
   const [isLiked, setIsLiked] = useState(false);
-  const [localLikeCount, setLocalLikeCount] = useState(0);
 
-  const storageKey = `liked_posts_${address?.toLowerCase()}`;
-
+  // Check if current user has liked this post
   useEffect(() => {
-    if (!address) return;
+    if (!address) {
+      setIsLiked(false);
+      return;
+    }
 
-    // Load liked status from localStorage
-    const stored = localStorage.getItem(storageKey);
+    const key = 'liked_posts';
+    const stored = localStorage.getItem(key);
     if (stored) {
       try {
-        const likedPosts: LikedPosts = JSON.parse(stored);
-        setIsLiked(!!likedPosts[postId.toString()]);
+        const allLikes: LikedPosts = JSON.parse(stored);
+        const userLikes = allLikes[address.toLowerCase()] || [];
+        const postIdStr = postId.toString();
+        setIsLiked(userLikes.some(l => l.postId === postIdStr));
       } catch (e) {
-        console.error('Failed to parse liked posts:', e);
+        console.error('Error loading like state:', e);
       }
     }
-  }, [address, postId, storageKey]);
+  }, [address, postId]);
 
-  const toggleLike = (currentCount: number) => {
-    if (!address) return currentCount;
+  // Get total UI-only like count for a specific post (across all users)
+  const getPostLikeCount = (): number => {
+    const key = 'liked_posts';
+    const stored = localStorage.getItem(key);
+    if (!stored) return 0;
 
-    const stored = localStorage.getItem(storageKey);
-    let likedPosts: LikedPosts = {};
+    try {
+      const allLikes: LikedPosts = JSON.parse(stored);
+      let count = 0;
+      const postIdStr = postId.toString();
+      
+      // Count how many users have liked this post
+      Object.values(allLikes).forEach(userLikes => {
+        if (userLikes.some(l => l.postId === postIdStr)) {
+          count++;
+        }
+      });
+      
+      return count;
+    } catch (e) {
+      console.error('Error counting likes:', e);
+      return 0;
+    }
+  };
+
+  const toggleLike = (): boolean => {
+    if (!address) return false;
+
+    const key = 'liked_posts';
+    const stored = localStorage.getItem(key);
+    let allLikes: LikedPosts = {};
     
     if (stored) {
       try {
-        likedPosts = JSON.parse(stored);
+        allLikes = JSON.parse(stored);
       } catch (e) {
-        console.error('Failed to parse liked posts:', e);
+        console.error('Error parsing like state:', e);
       }
     }
 
+    const addressKey = address.toLowerCase();
+    const userLikes = allLikes[addressKey] || [];
     const postIdStr = postId.toString();
-    const wasLiked = !!likedPosts[postIdStr];
+    const wasLiked = userLikes.some(l => l.postId === postIdStr);
     
     if (wasLiked) {
-      // Unlike
-      delete likedPosts[postIdStr];
+      allLikes[addressKey] = userLikes.filter(l => l.postId !== postIdStr);
       setIsLiked(false);
-      setLocalLikeCount(Math.max(0, currentCount - 1));
+      localStorage.setItem(key, JSON.stringify(allLikes));
+      return false;
     } else {
-      // Like
-      likedPosts[postIdStr] = true;
+      allLikes[addressKey] = [...userLikes, { postId: postIdStr, timestamp: Date.now() }];
       setIsLiked(true);
-      setLocalLikeCount(currentCount + 1);
+      localStorage.setItem(key, JSON.stringify(allLikes));
+      return true;
     }
-
-    localStorage.setItem(storageKey, JSON.stringify(likedPosts));
-    
-    return wasLiked ? Math.max(0, currentCount - 1) : currentCount + 1;
   };
 
   return {
     isLiked,
-    localLikeCount,
     toggleLike,
+    getPostLikeCount,
   };
 }
