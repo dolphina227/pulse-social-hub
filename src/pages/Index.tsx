@@ -2,7 +2,6 @@ import { useState, useEffect } from 'react';
 import { useAccount, useWriteContract, useReadContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { Card, CardContent } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 import { AlertCircle } from 'lucide-react';
@@ -24,30 +23,6 @@ export default function Index() {
     abi: PULSECHAT_ABI,
     functionName: 'getLatestPosts',
     args: [50n],
-  });
-
-  const { data: totalPosts } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'totalPosts',
-  });
-
-  const { data: totalUsers } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'totalUsers',
-  });
-
-  const { data: totalComments } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'totalComments',
-  });
-
-  const { data: totalMessages } = useReadContract({
-    address: PULSECHAT_CONTRACT_ADDRESS,
-    abi: PULSECHAT_ABI,
-    functionName: 'totalMessages',
   });
 
   const { writeContract, isPending } = useWriteContract();
@@ -101,33 +76,6 @@ export default function Index() {
     <div className="max-w-2xl mx-auto px-4 md:px-0 pt-16 lg:pt-0">
       <div className="border-b border-border/50 p-4 sticky top-16 lg:top-0 bg-background/95 backdrop-blur z-10">
         <h2 className="text-xl font-bold">Home</h2>
-      </div>
-
-      <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-4 p-4 border-b border-border/50">
-        <Card className="glass-effect">
-          <CardContent className="pt-4 sm:pt-6 text-center">
-            <p className="text-lg sm:text-2xl font-bold text-pulse-cyan">{totalPosts?.toString() || '0'}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Posts</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-effect">
-          <CardContent className="pt-4 sm:pt-6 text-center">
-            <p className="text-lg sm:text-2xl font-bold text-pulse-blue">{totalUsers?.toString() || '0'}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Users</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-effect">
-          <CardContent className="pt-4 sm:pt-6 text-center">
-            <p className="text-lg sm:text-2xl font-bold text-pulse-magenta">{totalComments?.toString() || '0'}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Comments</p>
-          </CardContent>
-        </Card>
-        <Card className="glass-effect">
-          <CardContent className="pt-4 sm:pt-6 text-center">
-            <p className="text-lg sm:text-2xl font-bold text-pulse-purple">{totalMessages?.toString() || '0'}</p>
-            <p className="text-[10px] sm:text-xs text-muted-foreground">Messages</p>
-          </CardContent>
-        </Card>
       </div>
 
       <div className="border-b border-border/50 p-4">

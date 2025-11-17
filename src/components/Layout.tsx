@@ -1,6 +1,6 @@
 import { Link, useLocation } from 'react-router-dom';
 import { WalletConnect } from './WalletConnect';
-import { Home, Search, MessageSquare, Trophy, User, Plus } from 'lucide-react';
+import { Home, Search, MessageSquare, Trophy, User, Plus, BarChart3 } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import pulsechatLogo from '@/assets/pulsechat-logo.png';
@@ -10,6 +10,7 @@ const navigation = [
   { name: 'Explore', href: '/explore', icon: Search },
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
+  { name: 'Analytics', href: '/analytics', icon: BarChart3 },
   { name: 'Profile', href: '/profile', icon: User },
 ];
 
@@ -113,7 +114,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 glass-effect">
-        <div className="grid grid-cols-5 gap-1 p-2">
+        <div className="grid grid-cols-6 gap-1 p-2">
           {navigation.map((item) => {
             const isActive = location.pathname === item.href;
             const Icon = item.icon;
