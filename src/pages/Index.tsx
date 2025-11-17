@@ -166,23 +166,39 @@ export default function Index() {
 
       <div>
         {posts.length > 0 ? (
-          posts.map((post: any, index: number) => (
-            <PostCard
-              key={index}
-              post={{
-                id: BigInt(index),
-                author: post.author,
-                content: post.content,
-                timestamp: Number(post.timestamp),
-                likeCount: Number(post.likeCount),
-                commentCount: Number(post.commentCount),
-                repostCount: Number(post.repostCount),
-                isRepost: post.isRepost,
-                originalPostId: post.originalPostId,
-              }}
-              onUpdate={() => refetchPosts()}
-            />
-          ))
+          posts.map((post: any, index: number) => {
+            // Fetch author profile for each post
+            const AuthorPostCard = () => {
+              const { data: authorProfile } = useReadContract({
+                address: PULSECHAT_CONTRACT_ADDRESS,
+                abi: PULSECHAT_ABI,
+                functionName: 'profiles',
+                args: [post.author],
+              }) as { data: any };
+
+              return (
+                <PostCard
+                  key={index}
+                  post={{
+                    id: BigInt(index),
+                    author: post.author,
+                    content: post.content,
+                    timestamp: Number(post.timestamp),
+                    likeCount: Number(post.likeCount),
+                    commentCount: Number(post.commentCount),
+                    repostCount: Number(post.repostCount),
+                    isRepost: post.isRepost,
+                    originalPostId: post.originalPostId,
+                  }}
+                  authorName={authorProfile?.name || ''}
+                  authorAvatar={authorProfile?.avatarUrl || ''}
+                  onUpdate={() => refetchPosts()}
+                />
+              );
+            };
+
+            return <AuthorPostCard key={index} />;
+          })
         ) : (
           <div className="p-8 text-center text-muted-foreground">
             <p>No posts yet. Be the first to post!</p>

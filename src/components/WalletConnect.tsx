@@ -1,16 +1,24 @@
-import { useAccount, useConnect, useDisconnect, useSwitchChain } from 'wagmi';
+import { useAccount, useConnect, useDisconnect, useSwitchChain, useReadContract } from 'wagmi';
 import { Button } from '@/components/ui/button';
 import { formatAddress } from '@/lib/utils/format';
 import { Wallet, LogOut, MoreHorizontal } from 'lucide-react';
 import { pulsechainMainnet } from '@/lib/wagmi';
 import { toast } from 'sonner';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
+import { PULSECHAT_CONTRACT_ADDRESS, PULSECHAT_ABI } from '@/lib/contracts';
 
 export function WalletConnect() {
   const { address, isConnected, chain } = useAccount();
   const { connect, connectors, isPending } = useConnect();
   const { disconnect } = useDisconnect();
   const { switchChain } = useSwitchChain();
+
+  const { data: userProfile } = useReadContract({
+    address: PULSECHAT_CONTRACT_ADDRESS,
+    abi: PULSECHAT_ABI,
+    functionName: 'profiles',
+    args: [address || '0x0'],
+  }) as { data: any };
 
   const isWrongNetwork = isConnected && chain?.id !== pulsechainMainnet.id;
 
@@ -23,16 +31,23 @@ export function WalletConnect() {
     connect({ connector });
   };
 
+  const profileName = userProfile?.name || '';
+  const profileAvatar = userProfile?.avatarUrl || '';
+
   if (isConnected && address) {
     return (
       <DropdownMenu>
         <DropdownMenuTrigger asChild>
           <button className="flex items-center gap-3 p-3 rounded-full hover:bg-muted/50 transition-colors w-full">
-            <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center">
-              <span className="text-sm font-bold text-white">{formatAddress(address).slice(0, 2)}</span>
-            </div>
+            {profileAvatar ? (
+              <img src={profileAvatar} alt="Profile" className="w-10 h-10 rounded-full object-cover" />
+            ) : (
+              <div className="w-10 h-10 rounded-full bg-gradient-pulse flex items-center justify-center">
+                <span className="text-sm font-bold text-white">{formatAddress(address).slice(0, 2)}</span>
+              </div>
+            )}
             <div className="hidden xl:flex flex-1 flex-col items-start">
-              <p className="font-bold text-sm">{formatAddress(address)}</p>
+              <p className="font-bold text-sm">{profileName || formatAddress(address)}</p>
               {isWrongNetwork ? (
                 <p className="text-xs text-destructive">Wrong network</p>
               ) : (
