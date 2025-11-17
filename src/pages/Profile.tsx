@@ -21,7 +21,8 @@ export default function Profile() {
   const isOwnProfile = connectedAddress?.toLowerCase() === profileAddress?.toLowerCase();
 
   const [isEditing, setIsEditing] = useState(false);
-  const [name, setName] = useState('');
+  const [displayName, setDisplayName] = useState('');
+  const [username, setUsername] = useState('');
   const [bio, setBio] = useState('');
   const [avatar, setAvatar] = useState('');
   const [uploading, setUploading] = useState(false);
@@ -55,9 +56,28 @@ export default function Profile() {
 
   useEffect(() => {
     if (profile) {
-      setName(profile[0] || '');
-      setBio(profile[1] || '');
-      setAvatar(profile[2] || '');
+      const usernameValue = profile[0] || '';
+      const bioField = profile[1] || '';
+      const avatarValue = profile[2] || '';
+      
+      setUsername(usernameValue);
+      setAvatar(avatarValue);
+      
+      // Try to parse bio as JSON for displayName + bio
+      try {
+        const parsed = JSON.parse(bioField);
+        if (parsed.displayName !== undefined && parsed.bio !== undefined) {
+          setDisplayName(parsed.displayName);
+          setBio(parsed.bio);
+        } else {
+          setDisplayName('');
+          setBio(bioField);
+        }
+      } catch {
+        // If not JSON, treat as plain bio
+        setDisplayName('');
+        setBio(bioField);
+      }
     }
   }, [profile]);
 
@@ -82,7 +102,7 @@ export default function Profile() {
   };
 
   const handleSaveProfile = async () => {
-    if (!name.trim()) {
+    if (!username.trim()) {
       toast.error('Username is required');
       return;
     }
@@ -92,30 +112,36 @@ export default function Profile() {
     try {
       // Store username check in localStorage to track used usernames
       const usedUsernames = JSON.parse(localStorage.getItem('used_usernames') || '{}');
-      const originalName = profile?.[0] || '';
+      const originalUsername = profile?.[0] || '';
       
       // Check if username is taken by someone else
-      if (usedUsernames[name.toLowerCase()] && 
-          usedUsernames[name.toLowerCase()] !== profileAddress?.toLowerCase() &&
-          name.toLowerCase() !== originalName.toLowerCase()) {
+      if (usedUsernames[username.toLowerCase()] && 
+          usedUsernames[username.toLowerCase()] !== profileAddress?.toLowerCase() &&
+          username.toLowerCase() !== originalUsername.toLowerCase()) {
         toast.error('This username appears to be taken. Please choose another one.');
         setCheckingUsername(false);
         return;
       }
 
+      // Combine displayName and bio into JSON for storage
+      const bioData = JSON.stringify({
+        displayName: displayName,
+        bio: bio
+      });
+
       writeContract({
         address: PULSECHAT_CONTRACT_ADDRESS,
         abi: PULSECHAT_ABI,
         functionName: 'setProfile',
-        args: [name, bio, avatar],
+        args: [username.trim(), bioData, avatar],
       } as any, {
         onSuccess: () => {
           // Update used usernames cache
           const updatedUsernames = { ...usedUsernames };
-          if (originalName) {
-            delete updatedUsernames[originalName.toLowerCase()];
+          if (originalUsername) {
+            delete updatedUsernames[originalUsername.toLowerCase()];
           }
-          updatedUsernames[name.toLowerCase()] = profileAddress?.toLowerCase();
+          updatedUsernames[username.toLowerCase()] = profileAddress?.toLowerCase();
           localStorage.setItem('used_usernames', JSON.stringify(updatedUsernames));
           
           toast.success('Profile updated successfully!');
@@ -156,8 +182,25 @@ export default function Profile() {
     );
   }
 
-  const displayName = profile?.[0] || formatAddress(profileAddress);
-  const displayBio = profile?.[1] || '';
+  // Parse profile data
+  let profileDisplayName = '';
+  let profileBio = '';
+  
+  try {
+    const bioField = profile?.[1] || '';
+    const parsed = JSON.parse(bioField);
+    if (parsed.displayName !== undefined && parsed.bio !== undefined) {
+      profileDisplayName = parsed.displayName;
+      profileBio = parsed.bio;
+    } else {
+      profileBio = bioField;
+    }
+  } catch {
+    profileBio = profile?.[1] || '';
+  }
+  
+  const profileUsername = profile?.[0] || '';
+  const displayText = profileDisplayName || profileUsername || formatAddress(profileAddress);
   const createdAt = profile?.[3] ? Number(profile[3]) : 0;
 
   return (
@@ -170,7 +213,7 @@ export default function Profile() {
                 <img src={avatar} alt="Profile" className="w-24 h-24 rounded-full object-cover" />
               ) : (
                 <div className="w-24 h-24 rounded-full bg-gradient-pulse flex items-center justify-center">
-                  <span className="text-3xl font-bold text-white">{displayName.slice(0, 2).toUpperCase()}</span>
+                  <span className="text-3xl font-bold text-white">{displayText.slice(0, 2).toUpperCase()}</span>
                 </div>
               )}
               {isEditing && (
@@ -206,13 +249,28 @@ export default function Profile() {
                   </Alert>
                   
                   <div className="space-y-2">
+                    <label className="text-sm font-medium">Display Name</label>
+                    <Input 
+                      placeholder="Your display name (e.g. John Doe)" 
+                      value={displayName} 
+                      onChange={(e) => setDisplayName(e.target.value.slice(0, 50))}
+                    />
+                    <p className="text-xs text-muted-foreground">Your public name (max 50 characters)</p>
+                  </div>
+
+                  <div className="space-y-2">
                     <label className="text-sm font-medium">Username *</label>
                     <Input 
-                      placeholder="Enter username" 
-                      value={name} 
-                      onChange={(e) => setName(e.target.value)}
-                      maxLength={50}
+                      placeholder="yourusername" 
+                      value={username} 
+                      onChange={(e) => setUsername(e.target.value.slice(0, 30).replace(/\s/g, ''))}
                     />
+                    <p className="text-xs text-muted-foreground">Your unique @handle (max 30 characters, no spaces)</p>
+                    {username && username !== profile?.[0] && (
+                      <p className="text-xs text-amber-500">
+                        ⚠️ Username must be unique - once claimed, it cannot be reused.
+                      </p>
+                    )}
                   </div>
                   
                   <div className="space-y-2">
@@ -231,7 +289,7 @@ export default function Profile() {
                     <Button 
                       variant="gradient" 
                       onClick={handleSaveProfile} 
-                      disabled={isPending || checkingUsername || !name.trim()}
+                      disabled={isPending || checkingUsername || !username.trim()}
                     >
                       {isPending || checkingUsername ? 'Saving...' : 'Save Profile'}
                     </Button>
@@ -239,9 +297,19 @@ export default function Profile() {
                       variant="outline" 
                       onClick={() => {
                         setIsEditing(false);
-                        setName(profile?.[0] || '');
-                        setBio(profile?.[1] || '');
-                        setAvatar(profile?.[2] || '');
+                        // Reset to original values
+                        if (profile) {
+                          setUsername(profile[0] || '');
+                          setAvatar(profile[2] || '');
+                          try {
+                            const parsed = JSON.parse(profile[1] || '');
+                            setDisplayName(parsed.displayName || '');
+                            setBio(parsed.bio || '');
+                          } catch {
+                            setDisplayName('');
+                            setBio(profile[1] || '');
+                          }
+                        }
                       }}
                     >
                       Cancel
@@ -252,8 +320,8 @@ export default function Profile() {
                 <>
                   <div className="flex items-center justify-between">
                     <div>
-                      <h1 className="text-2xl font-bold">{displayName}</h1>
-                      <p className="text-sm text-muted-foreground">{formatAddress(profileAddress)}</p>
+                      <h1 className="text-2xl font-bold">{displayText}</h1>
+                      <p className="text-sm text-muted-foreground">@{profileUsername || formatAddress(profileAddress)}</p>
                     </div>
                     {isOwnProfile && (
                       <Button variant="outline" onClick={() => setIsEditing(true)}>
@@ -262,7 +330,7 @@ export default function Profile() {
                     )}
                   </div>
 
-                  {displayBio && <p>{displayBio}</p>}
+                  {profileBio && <p>{profileBio}</p>}
 
                   <div className="flex items-center gap-2 text-sm text-muted-foreground">
                     <Calendar className="h-4 w-4" />
