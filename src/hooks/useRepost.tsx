@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { useNotifications } from './useNotifications';
 
 interface RepostedPost {
   postId: string;
@@ -10,8 +11,9 @@ interface RepostedPosts {
   [address: string]: RepostedPost[];
 }
 
-export function useRepost(postId: bigint) {
+export function useRepost(postId: bigint, postAuthor?: string) {
   const { address } = useAccount();
+  const { addNotification } = useNotifications();
   const [isReposted, setIsReposted] = useState(false);
 
   // Check if current user has reposted this post
@@ -89,6 +91,12 @@ export function useRepost(postId: bigint) {
       allReposts[addressKey] = [...userReposts, { postId: postIdStr, timestamp: Date.now() }];
       setIsReposted(true);
       localStorage.setItem(key, JSON.stringify(allReposts));
+      
+      // Trigger notification for post author
+      if (postAuthor) {
+        addNotification('repost', address, { postId: postIdStr });
+      }
+      
       return true;
     }
   };
