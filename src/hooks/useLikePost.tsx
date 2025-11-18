@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { useNotifications } from './useNotifications';
 
 interface LikedPost {
   postId: string;
@@ -10,8 +11,9 @@ interface LikedPosts {
   [address: string]: LikedPost[];
 }
 
-export function useLikePost(postId: bigint) {
+export function useLikePost(postId: bigint, postAuthor?: string) {
   const { address } = useAccount();
+  const { addNotification } = useNotifications();
   const [isLiked, setIsLiked] = useState(false);
 
   // Check if current user has liked this post
@@ -89,6 +91,12 @@ export function useLikePost(postId: bigint) {
       allLikes[addressKey] = [...userLikes, { postId: postIdStr, timestamp: Date.now() }];
       setIsLiked(true);
       localStorage.setItem(key, JSON.stringify(allLikes));
+      
+      // Trigger notification for post author
+      if (postAuthor) {
+        addNotification('like', address, { postId: postIdStr });
+      }
+      
       return true;
     }
   };

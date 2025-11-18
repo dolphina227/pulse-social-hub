@@ -44,8 +44,8 @@ export default function PostDetail() {
     args: post ? [post[1] as `0x${string}`] : undefined,
   }) as { data: any };
 
-  const { isLiked, toggleLike, getPostLikeCount } = useLikePost(postId);
-  const { isReposted, toggleRepost, getPostRepostCount } = useRepost(postId);
+  const { isLiked, toggleLike, getPostLikeCount } = useLikePost(postId, post ? post[1] as string : undefined);
+  const { isReposted, toggleRepost, getPostRepostCount } = useRepost(postId, post ? post[1] as string : undefined);
   
   // Calculate total counts (on-chain + UI-only)
   const totalLikeCount = (post ? Number(post[4] || 0) : 0) + getPostLikeCount();

@@ -1,5 +1,6 @@
 import { useState, useEffect } from 'react';
 import { useAccount } from 'wagmi';
+import { useNotifications } from './useNotifications';
 
 interface FollowData {
   [userAddress: string]: string[]; // userAddress -> array of addresses they follow
@@ -7,6 +8,7 @@ interface FollowData {
 
 export function useFollow() {
   const { address } = useAccount();
+  const { addNotification } = useNotifications();
   const [followData, setFollowData] = useState<FollowData>({});
 
   useEffect(() => {
@@ -42,6 +44,9 @@ export function useFollow() {
     if (!newData[normalizedUser].includes(normalizedTarget)) {
       newData[normalizedUser].push(normalizedTarget);
       saveFollowData(newData);
+      
+      // Trigger notification for the followed user
+      addNotification('follow', address);
     }
   };
 

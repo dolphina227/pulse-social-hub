@@ -47,8 +47,8 @@ export function PostCard({ post, onUpdate, showAsUiRepost, repostAuthor }: PostC
     args: [post.author as `0x${string}`],
   });
 
-  const { isLiked, toggleLike, getPostLikeCount } = useLikePost(post.id);
-  const { isReposted, toggleRepost, getPostRepostCount } = useRepost(post.id);
+  const { isLiked, toggleLike, getPostLikeCount } = useLikePost(post.id, post.author);
+  const { isReposted, toggleRepost, getPostRepostCount } = useRepost(post.id, post.author);
   
   // Parse author profile data
   const { username, displayName, avatar: authorAvatar } = parseProfile(authorProfile);

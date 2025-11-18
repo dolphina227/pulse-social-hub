@@ -7,6 +7,8 @@ import { cn } from '@/lib/utils';
 import pulsechatLogo from '@/assets/pulsechat-logo.png';
 import { CreatePostModal } from './CreatePostModal';
 import { NewUsersWidget } from './NewUsersWidget';
+import { NotificationBell } from './NotificationBell';
+import { useAccount } from 'wagmi';
 
 const navigation = [
   { name: 'Home', href: '/', icon: Home },
@@ -19,6 +21,7 @@ const navigation = [
 
 export function Layout({ children }: { children: React.ReactNode }) {
   const location = useLocation();
+  const { isConnected } = useAccount();
   const [isPostModalOpen, setIsPostModalOpen] = useState(false);
 
   return (
@@ -133,7 +136,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <img src={pulsechatLogo} alt="ProveChat" className="h-8 w-8 sm:h-10 sm:w-10" />
             <h1 className="text-base sm:text-lg font-bold gradient-pulse-text">ProveChat</h1>
           </Link>
-          <div className="scale-90 sm:scale-100">
+          <div className="flex items-center gap-2 scale-90 sm:scale-100">
+            {isConnected && <NotificationBell />}
             <WalletConnect />
           </div>
         </div>
