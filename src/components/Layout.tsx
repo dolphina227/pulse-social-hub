@@ -32,9 +32,9 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <div className="container mx-auto flex">
         {/* Left Sidebar - Always visible, compact on mobile */}
         <aside className="flex flex-col w-16 md:w-60 xl:w-64 h-screen sticky top-0 border-r border-border/50 px-2 md:px-3 py-4 md:py-6">
-          <Link to="/" className="flex items-center justify-center md:justify-start gap-2 mb-4 md:mb-6 px-1 md:px-2">
-            <img src={pulsechatLogo} alt="ProveChat" className="h-8 w-8 md:h-9 md:w-9" />
-            <h1 className="hidden md:block text-lg font-bold gradient-pulse-text">ProveChat</h1>
+          <Link to="/" className="flex items-center justify-center md:justify-start gap-2 mb-4 md:mb-6 px-1 md:px-2 min-h-[40px]">
+            <img src={pulsechatLogo} alt="ProveChat" className="h-8 w-8 md:h-9 md:w-9 flex-shrink-0" />
+            <h1 className="hidden md:block text-lg font-bold gradient-pulse-text whitespace-nowrap">ProveChat</h1>
           </Link>
 
           <nav className="flex-1 space-y-1">
