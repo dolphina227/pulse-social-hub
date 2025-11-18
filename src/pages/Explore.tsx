@@ -26,7 +26,7 @@ export default function Explore() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto pt-12 md:pt-6 px-4">
         <Alert>
           <AlertDescription>Connect your wallet to explore posts</AlertDescription>
         </Alert>
@@ -35,7 +35,7 @@ export default function Explore() {
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 pb-20 md:pb-6 px-4 md:px-0 pt-20 lg:pt-6">
+    <div className="max-w-4xl mx-auto space-y-6 px-4 pt-12 md:pt-6">
       <Card className="glass-effect">
         <CardContent className="pt-6">
           <div className="relative">
