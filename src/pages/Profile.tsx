@@ -17,6 +17,7 @@ import { useFollow } from '@/hooks/useFollow';
 import { FollowButton } from '@/components/FollowButton';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { parseProfile } from '@/lib/utils/profile';
+import { UserListItem } from '@/components/UserListItem';
 
 export default function Profile() {
   const { address: connectedAddress, isConnected } = useAccount();
@@ -436,44 +437,9 @@ export default function Profile() {
             <CardContent className="pt-6">
               {getFollowers(profileAddress).length > 0 ? (
                 <div className="space-y-3">
-                  {getFollowers(profileAddress).map((followerAddress) => {
-                    const FollowerItem = () => {
-                      const { data: followerProfile } = useReadContract({
-                        address: PULSECHAT_CONTRACT_ADDRESS,
-                        abi: PULSECHAT_ABI,
-                        functionName: 'profiles',
-                        args: [followerAddress as `0x${string}`],
-                      });
-
-                      const { username, displayName, avatar } = parseProfile(followerProfile);
-                      const displayText = displayName || username || formatAddress(followerAddress);
-
-                      return (
-                        <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors">
-                          <div className="flex items-center gap-3 flex-1">
-                            {avatar ? (
-                              <img src={avatar} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
-                            ) : (
-                              <div className="w-12 h-12 rounded-full bg-gradient-pulse flex items-center justify-center">
-                                <span className="text-sm font-bold text-white">
-                                  {displayText.slice(0, 2).toUpperCase()}
-                                </span>
-                              </div>
-                            )}
-                            <div>
-                              <p className="font-semibold">{displayText}</p>
-                              <p className="text-sm text-muted-foreground">
-                                @{username || formatAddress(followerAddress)}
-                              </p>
-                            </div>
-                          </div>
-                          <FollowButton targetAddress={followerAddress} />
-                        </div>
-                      );
-                    };
-
-                    return <FollowerItem key={followerAddress} />;
-                  })}
+                  {getFollowers(profileAddress).map((followerAddress) => (
+                    <UserListItem key={followerAddress} userAddress={followerAddress} />
+                  ))}
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground py-8">No followers yet</p>
@@ -487,44 +453,9 @@ export default function Profile() {
             <CardContent className="pt-6">
               {getFollowing(profileAddress).length > 0 ? (
                 <div className="space-y-3">
-                  {getFollowing(profileAddress).map((followingAddress) => {
-                    const FollowingItem = () => {
-                      const { data: followingProfile } = useReadContract({
-                        address: PULSECHAT_CONTRACT_ADDRESS,
-                        abi: PULSECHAT_ABI,
-                        functionName: 'profiles',
-                        args: [followingAddress as `0x${string}`],
-                      });
-
-                      const { username, displayName, avatar } = parseProfile(followingProfile);
-                      const displayText = displayName || username || formatAddress(followingAddress);
-
-                      return (
-                        <div className="flex items-center justify-between p-3 rounded-lg hover:bg-muted/30 transition-colors">
-                          <div className="flex items-center gap-3 flex-1">
-                            {avatar ? (
-                              <img src={avatar} alt="Avatar" className="w-12 h-12 rounded-full object-cover" />
-                            ) : (
-                              <div className="w-12 h-12 rounded-full bg-gradient-pulse flex items-center justify-center">
-                                <span className="text-sm font-bold text-white">
-                                  {displayText.slice(0, 2).toUpperCase()}
-                                </span>
-                              </div>
-                            )}
-                            <div>
-                              <p className="font-semibold">{displayText}</p>
-                              <p className="text-sm text-muted-foreground">
-                                @{username || formatAddress(followingAddress)}
-                              </p>
-                            </div>
-                          </div>
-                          <FollowButton targetAddress={followingAddress} />
-                        </div>
-                      );
-                    };
-
-                    return <FollowingItem key={followingAddress} />;
-                  })}
+                  {getFollowing(profileAddress).map((followingAddress) => (
+                    <UserListItem key={followingAddress} userAddress={followingAddress} />
+                  ))}
                 </div>
               ) : (
                 <p className="text-center text-muted-foreground py-8">Not following anyone yet</p>
