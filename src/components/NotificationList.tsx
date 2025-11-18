@@ -128,7 +128,7 @@ export function NotificationList() {
 
   return (
     <div className="w-full">
-      <div className="p-4 border-b border-border/50 flex items-center justify-between">
+      <div className="p-4 border-b border-border/50 flex items-center justify-between sticky top-0 bg-background z-10">
         <h3 className="font-semibold text-lg">Notifications</h3>
         <div className="flex gap-2">
           {notifications.length > 0 && (
@@ -154,11 +154,12 @@ export function NotificationList() {
         </div>
       </div>
 
-      <ScrollArea className="h-[400px]">
+      <div className="divide-y divide-border/50">
         {notifications.length === 0 ? (
-          <div className="p-8 text-center text-muted-foreground">
-            <Bell className="h-12 w-12 mx-auto mb-3 opacity-50" />
-            <p>No notifications yet</p>
+          <div className="p-12 text-center text-muted-foreground">
+            <Bell className="h-16 w-16 mx-auto mb-4 opacity-50" />
+            <p className="text-lg font-medium mb-1">No notifications yet</p>
+            <p className="text-sm">When someone interacts with you, you'll see it here</p>
           </div>
         ) : (
           notifications.map((notification) => (
@@ -169,7 +170,7 @@ export function NotificationList() {
             />
           ))
         )}
-      </ScrollArea>
+      </div>
     </div>
   );
 }
