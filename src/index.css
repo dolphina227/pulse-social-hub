@@ -75,6 +75,20 @@ All colors MUST be HSL.
     @apply bg-muted;
   }
 
+  /* Link styles */
+  a {
+    @apply transition-colors cursor-pointer;
+  }
+
+  a:hover {
+    @apply text-primary;
+  }
+
+  /* Ensure all clickable elements have pointer cursor */
+  button, [role="button"], [type="button"], [type="submit"] {
+    @apply cursor-pointer;
+  }
+
   ::-webkit-scrollbar-thumb {
     @apply bg-primary/30 rounded-full;
   }

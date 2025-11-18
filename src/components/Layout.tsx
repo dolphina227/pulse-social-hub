@@ -49,15 +49,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    'flex items-center justify-center md:justify-start gap-3 px-2 md:px-3 py-2.5 rounded-full text-base font-medium transition-all group',
+                    'flex items-center justify-center md:justify-start gap-3 px-2 md:px-3 py-2.5 rounded-full text-base font-medium transition-all group cursor-pointer hover:scale-105',
                     isActive
                       ? 'bg-primary/10 text-primary'
-                      : 'text-foreground hover:bg-muted/50'
+                      : 'text-foreground hover:bg-muted/50 hover:text-primary'
                   )}
                   title={item.name}
                 >
                   <Icon className={cn("h-6 w-6 md:h-5 md:w-5 transition-transform group-hover:scale-110", isActive && "text-primary")} />
-                  <span className="hidden md:inline">{item.name}</span>
+                  <span className="hidden md:inline group-hover:underline decoration-primary/50 underline-offset-4">{item.name}</span>
                 </Link>
               );
             })}
