@@ -1,5 +1,5 @@
 // Contract addresses
-export const PULSECHAT_CONTRACT_ADDRESS = '0x2546550a7ecbbccc390c07a81abe94e48baf1db9' as const;
+export const PULSECHAT_CONTRACT_ADDRESS = '0x2Dea1787989A8807b66EFaB66df34d870663709F' as const;
 
 // USDC address - should be set via environment variable
 export const USDC_ADDRESS = (import.meta.env.VITE_USDC_ADDRESS || '') as `0x${string}`;
