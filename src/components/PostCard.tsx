@@ -1,5 +1,5 @@
 import { Link } from 'react-router-dom';
-import { Heart, MessageCircle, Repeat2, DollarSign } from 'lucide-react';
+import { Heart, MessageCircle, Repeat2, DollarSign, Share2 } from 'lucide-react';
 import { formatAddress, formatTimestamp } from '@/lib/utils/format';
 import { parseProfile } from '@/lib/utils/profile';
 import { Button } from './ui/button';
@@ -86,6 +86,40 @@ export function PostCard({ post, onUpdate, showAsUiRepost, repostAuthor }: PostC
       toast.success('Removed from your feed');
     } else {
       toast.success('Reposted to your feed (no on-chain fee)');
+    }
+  };
+
+  const handleShare = async () => {
+    const postUrl = `${window.location.origin}/post/${post.id}`;
+    
+    // Try Web Share API first (mobile/modern browsers)
+    if (navigator.share) {
+      try {
+        await navigator.share({
+          title: `Post by ${authorDisplayText}`,
+          text: textContent,
+          url: postUrl,
+        });
+        toast.success('Post shared!');
+      } catch (error) {
+        // User cancelled or error occurred
+        if ((error as Error).name !== 'AbortError') {
+          // Fallback to clipboard
+          copyToClipboard(postUrl);
+        }
+      }
+    } else {
+      // Fallback to clipboard copy
+      copyToClipboard(postUrl);
+    }
+  };
+
+  const copyToClipboard = async (text: string) => {
+    try {
+      await navigator.clipboard.writeText(text);
+      toast.success('Link copied to clipboard!');
+    } catch (error) {
+      toast.error('Failed to copy link');
     }
   };
 
@@ -220,6 +254,16 @@ export function PostCard({ post, onUpdate, showAsUiRepost, repostAuthor }: PostC
               >
                 <DollarSign className="h-4 w-4" />
                 <span className="text-sm">Tip</span>
+              </Button>
+
+              <Button
+                variant="ghost"
+                size="sm"
+                className="gap-2 hover:text-pulse-cyan"
+                onClick={handleShare}
+                title="Share this post"
+              >
+                <Share2 className="h-4 w-4" />
               </Button>
             </div>
           </div>
