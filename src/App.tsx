@@ -9,6 +9,7 @@ import { Layout } from "@/components/Layout";
 import Index from "./pages/Index";
 import Explore from "./pages/Explore";
 import Messages from "./pages/Messages";
+import Notifications from "./pages/Notifications";
 import Leaderboard from "./pages/Leaderboard";
 import Profile from "./pages/Profile";
 import PostDetail from "./pages/PostDetail";
@@ -28,6 +29,7 @@ const App = () => (
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/explore" element={<Explore />} />
+              <Route path="/notifications" element={<Notifications />} />
               <Route path="/messages" element={<Messages />} />
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/analytics" element={<Analytics />} />
