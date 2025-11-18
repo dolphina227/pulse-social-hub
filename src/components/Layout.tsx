@@ -64,7 +64,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
           <Button 
             variant="gradient" 
             size="icon"
-            className="w-12 h-12 md:w-full md:h-11 rounded-full mb-3 md:mb-4 text-base font-semibold"
+            className="hidden md:flex w-full h-11 rounded-full mb-3 md:mb-4 text-base font-semibold"
             onClick={() => setIsPostModalOpen(true)}
           >
             <Plus className="h-5 w-5 md:mr-2" />
