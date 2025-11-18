@@ -1,7 +1,7 @@
 import { Link, useLocation } from 'react-router-dom';
 import { useState } from 'react';
 import { WalletConnect } from './WalletConnect';
-import { Home, Search, MessageSquare, Trophy, User, Plus, BarChart3, Bell } from 'lucide-react';
+import { Home, Search, MessageSquare, Trophy, User, Plus, BarChart3, Bell, HelpCircle } from 'lucide-react';
 import { Button } from './ui/button';
 import { cn } from '@/lib/utils';
 import pulsechatLogo from '@/assets/pulsechat-logo.png';
@@ -17,6 +17,7 @@ const navigation = [
   { name: 'Messages', href: '/messages', icon: MessageSquare },
   { name: 'Leaderboard', href: '/leaderboard', icon: Trophy },
   { name: 'Analytics', href: '/analytics', icon: BarChart3 },
+  { name: 'How it Works', href: '/how-it-works', icon: HelpCircle },
   { name: 'Profile', href: '/profile', icon: User },
 ];
 
