@@ -131,6 +131,16 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </div>
       </nav>
 
+      {/* Floating Post Button - Mobile Only */}
+      <Button
+        variant="gradient"
+        size="icon"
+        className="lg:hidden fixed bottom-20 right-4 z-50 w-14 h-14 rounded-full shadow-lg hover:scale-110 transition-transform"
+        onClick={() => setIsPostModalOpen(true)}
+      >
+        <Plus className="h-6 w-6" />
+      </Button>
+
       <div className="lg:hidden fixed top-0 left-0 right-0 z-40 border-b border-border/50 glass-effect">
         <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
           <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
