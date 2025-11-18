@@ -30,11 +30,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
       <CreatePostModal open={isPostModalOpen} onOpenChange={setIsPostModalOpen} />
       <div className="min-h-screen bg-background">
       <div className="container mx-auto flex">
-        {/* Left Sidebar - Desktop */}
-        <aside className="hidden lg:flex lg:flex-col lg:w-60 xl:w-64 h-screen sticky top-0 border-r border-border/50 px-3 py-6">
-          <Link to="/" className="flex items-center gap-2 mb-6 px-2">
-            <img src={pulsechatLogo} alt="ProveChat" className="h-9 w-9" />
-            <h1 className="text-lg font-bold gradient-pulse-text">ProveChat</h1>
+        {/* Left Sidebar - Always visible, compact on mobile */}
+        <aside className="flex flex-col w-16 md:w-60 xl:w-64 h-screen sticky top-0 border-r border-border/50 px-2 md:px-3 py-4 md:py-6">
+          <Link to="/" className="flex items-center justify-center md:justify-start gap-2 mb-4 md:mb-6 px-1 md:px-2">
+            <img src={pulsechatLogo} alt="ProveChat" className="h-8 w-8 md:h-9 md:w-9" />
+            <h1 className="hidden md:block text-lg font-bold gradient-pulse-text">ProveChat</h1>
           </Link>
 
           <nav className="flex-1 space-y-1">
@@ -47,14 +47,15 @@ export function Layout({ children }: { children: React.ReactNode }) {
                   key={item.name}
                   to={item.href}
                   className={cn(
-                    'flex items-center gap-3 px-3 py-2.5 rounded-full text-base font-medium transition-all group',
+                    'flex items-center justify-center md:justify-start gap-3 px-2 md:px-3 py-2.5 rounded-full text-base font-medium transition-all group',
                     isActive
                       ? 'bg-primary/10 text-primary'
                       : 'text-foreground hover:bg-muted/50'
                   )}
+                  title={item.name}
                 >
-                  <Icon className={cn("h-5 w-5 transition-transform group-hover:scale-110", isActive && "text-primary")} />
-                  <span>{item.name}</span>
+                  <Icon className={cn("h-6 w-6 md:h-5 md:w-5 transition-transform group-hover:scale-110", isActive && "text-primary")} />
+                  <span className="hidden md:inline">{item.name}</span>
                 </Link>
               );
             })}
@@ -62,20 +63,20 @@ export function Layout({ children }: { children: React.ReactNode }) {
 
           <Button 
             variant="gradient" 
-            size="default" 
-            className="w-full rounded-full mb-4 text-base h-11 font-semibold"
+            size="icon"
+            className="w-12 h-12 md:w-full md:h-11 rounded-full mb-3 md:mb-4 text-base font-semibold"
             onClick={() => setIsPostModalOpen(true)}
           >
-            <Plus className="h-5 w-5 mr-2" />
-            Post
+            <Plus className="h-5 w-5 md:mr-2" />
+            <span className="hidden md:inline">Post</span>
           </Button>
 
-          <div className="mt-auto">
+          <div className="mt-auto hidden md:block">
             <WalletConnect />
           </div>
         </aside>
 
-        <main className="flex-1 min-h-screen border-r border-border/50 pb-20 lg:pb-0 lg:pl-6">
+        <main className="flex-1 min-h-screen border-r border-border/50">
           {children}
         </main>
 
@@ -108,46 +109,11 @@ export function Layout({ children }: { children: React.ReactNode }) {
         </aside>
       </div>
 
-      <nav className="lg:hidden fixed bottom-0 left-0 right-0 z-50 border-t border-border/50 glass-effect">
-        <div className="grid grid-cols-6 gap-1 p-2">
-          {navigation.map((item) => {
-            const isActive = location.pathname === item.href;
-            const Icon = item.icon;
-            
-            return (
-              <Link
-                key={item.name}
-                to={item.href}
-                className={cn(
-                  'flex flex-col items-center gap-1 px-2 py-2 rounded-lg text-xs font-medium transition-all',
-                  isActive ? 'text-primary bg-primary/10' : 'text-muted-foreground'
-                )}
-              >
-                <Icon className="h-6 w-6" />
-                <span className="text-[10px]">{item.name}</span>
-              </Link>
-            );
-          })}
-        </div>
-      </nav>
-
-      {/* Floating Post Button - Mobile Only */}
-      <Button
-        variant="gradient"
-        size="icon"
-        className="lg:hidden fixed bottom-20 right-4 z-50 w-14 h-14 rounded-full shadow-lg hover:scale-110 transition-transform"
-        onClick={() => setIsPostModalOpen(true)}
-      >
-        <Plus className="h-6 w-6" />
-      </Button>
-
-      <div className="lg:hidden fixed top-0 left-0 right-0 z-40 border-b border-border/50 glass-effect">
-        <div className="flex items-center justify-between px-3 sm:px-4 py-2 sm:py-3">
-          <Link to="/" className="flex items-center gap-1.5 sm:gap-2">
-            <img src={pulsechatLogo} alt="ProveChat" className="h-8 w-8 sm:h-10 sm:w-10" />
-            <h1 className="text-base sm:text-lg font-bold gradient-pulse-text">ProveChat</h1>
-          </Link>
-          <div className="flex items-center gap-2 scale-90 sm:scale-100">
+      {/* Top Bar - Mobile Only (for wallet connect and notifications) */}
+      <div className="md:hidden fixed top-0 left-16 right-0 z-40 border-b border-border/50 glass-effect">
+        <div className="flex items-center justify-between px-3 py-2">
+          <h1 className="text-base font-bold gradient-pulse-text">ProveChat</h1>
+          <div className="flex items-center gap-2 scale-90">
             {isConnected && <NotificationBell />}
             <WalletConnect />
           </div>
