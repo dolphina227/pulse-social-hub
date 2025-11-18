@@ -15,6 +15,7 @@ import Profile from "./pages/Profile";
 import PostDetail from "./pages/PostDetail";
 import Analytics from "./pages/Analytics";
 import HowItWorks from "./pages/HowItWorks";
+import Community from "./pages/Community";
 import NotFound from "./pages/NotFound";
 
 const queryClient = new QueryClient();
@@ -35,6 +36,7 @@ const App = () => (
               <Route path="/leaderboard" element={<Leaderboard />} />
               <Route path="/analytics" element={<Analytics />} />
               <Route path="/how-it-works" element={<HowItWorks />} />
+              <Route path="/community" element={<Community />} />
               <Route path="/profile" element={<Profile />} />
               <Route path="/profile/:address" element={<Profile />} />
               <Route path="/post/:id" element={<PostDetail />} />
