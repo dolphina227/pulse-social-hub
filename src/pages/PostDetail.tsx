@@ -114,8 +114,8 @@ export default function PostDetail() {
 
   return (
     <>
-      <div className="max-w-2xl mx-auto pt-12 md:pt-0">
-        <div className="border-b border-border/50 p-4 sticky top-12 md:top-0 bg-background/95 backdrop-blur z-10 flex items-center gap-4">
+      <div className="max-w-2xl mx-auto pt-16 md:pt-0">
+        <div className="border-b border-border/50 p-4 sticky top-16 md:top-0 bg-background/95 backdrop-blur z-10 flex items-center gap-4">
           <Link to="/">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-5 w-5" />
