@@ -1,6 +1,6 @@
 import { supabase } from "@/integrations/supabase/client";
 
-// Image/video upload utility - uploads to Lovable Cloud storage
+// Image/video upload utility - uploads to cloud storage
 export async function uploadImage(file: File): Promise<string> {
   try {
     const fileExt = file.name.split('.').pop();
