@@ -110,7 +110,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
       </div>
 
       {/* Top Bar - Mobile Only (for wallet connect and notifications) */}
-      <div className="md:hidden fixed top-0 left-16 right-0 z-40 border-b border-border/50 glass-effect">
+      <div className="md:hidden fixed top-0 left-16 right-0 z-10 border-b border-border/50 glass-effect">
         <div className="flex items-center justify-end px-3 py-2">
           <div className="flex items-center gap-2 scale-90">
             {isConnected && <NotificationBell />}
