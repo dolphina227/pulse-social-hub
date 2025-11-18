@@ -60,7 +60,7 @@ export default function Analytics() {
   ];
 
   return (
-    <div className="max-w-6xl mx-auto px-4 md:px-6 pt-12 md:pt-6">
+    <div className="max-w-6xl mx-auto px-4 md:px-6 pt-16 md:pt-6">
       <div className="p-6 space-y-8">
         {/* Main Stats Grid */}
         <div className="grid grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">

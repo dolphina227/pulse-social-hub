@@ -21,7 +21,7 @@ export default function Index() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-2xl mx-auto p-6 pt-12 md:pt-6 px-4">
+      <div className="max-w-2xl mx-auto p-6 pt-16 md:pt-6 px-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Please connect your wallet to view the feed</AlertDescription>
@@ -38,7 +38,7 @@ export default function Index() {
         onPostCreated={() => setTimeout(() => refetchPosts(), 2000)}
       />
 
-      <div className="max-w-2xl mx-auto px-4 pt-12 md:pt-6">
+      <div className="max-w-2xl mx-auto px-4 pt-16 md:pt-6">
         {/* Floating Post Button for Mobile */}
         <button
           onClick={() => setIsPostModalOpen(true)}

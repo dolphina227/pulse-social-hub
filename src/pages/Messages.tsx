@@ -74,7 +74,7 @@ export default function Messages() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-4xl mx-auto pt-12 md:pt-6 px-4">
+      <div className="max-w-4xl mx-auto pt-16 md:pt-6 px-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Connect wallet to access messages</AlertDescription>
@@ -84,7 +84,7 @@ export default function Messages() {
   }
 
   return (
-    <div className="max-w-6xl mx-auto px-4 pt-12 md:pt-6">
+    <div className="max-w-6xl mx-auto px-4 pt-16 md:pt-6">
       <div className="mb-6">
         <Alert className="border-pulse-cyan/20">
           <AlertCircle className="h-4 w-4 text-pulse-cyan" />

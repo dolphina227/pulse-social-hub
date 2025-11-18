@@ -42,7 +42,7 @@ export default function Leaderboard() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-4xl mx-auto pt-12 md:pt-6 px-4">
+      <div className="max-w-4xl mx-auto pt-16 md:pt-6 px-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Connect wallet to view leaderboard</AlertDescription>
@@ -55,7 +55,7 @@ export default function Leaderboard() {
   const fees = leaderboardData?.[1] || [];
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 px-4 pt-12 md:pt-6">
+    <div className="max-w-4xl mx-auto space-y-6 px-4 pt-16 md:pt-6">
       <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
         <Card className="glass-effect">
           <CardContent className="pt-6 text-center">

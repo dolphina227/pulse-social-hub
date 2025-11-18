@@ -179,7 +179,7 @@ export default function Profile() {
 
   if (!isConnected) {
     return (
-      <div className="max-w-4xl mx-auto pt-12 md:pt-6 px-4">
+      <div className="max-w-4xl mx-auto pt-16 md:pt-6 px-4">
         <Alert>
           <AlertCircle className="h-4 w-4" />
           <AlertDescription>Connect wallet to view profiles</AlertDescription>
@@ -210,7 +210,7 @@ export default function Profile() {
   const createdAt = profile?.[3] ? Number(profile[3]) : 0;
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 px-4 pt-12 md:pt-6">
+    <div className="max-w-4xl mx-auto space-y-6 px-4 pt-16 md:pt-6">
       <Card className="glass-effect">
         <CardContent className="pt-6">
           <div className="flex flex-col md:flex-row gap-6">
