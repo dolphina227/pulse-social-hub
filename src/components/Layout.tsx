@@ -35,8 +35,8 @@ export function Layout({ children }: { children: React.ReactNode }) {
         {/* Left Sidebar - Always visible, compact on mobile */}
         <aside className="flex flex-col w-16 md:w-60 xl:w-64 h-screen sticky top-0 border-r border-border/50 px-2 md:px-3 py-4 md:py-6 z-50 bg-background">
           <Link to="/" className="flex items-center justify-center md:justify-start gap-2 mb-4 md:mb-6 px-1 md:px-2 min-h-[40px]">
-            <img src={pulsechatLogo} alt="ProveChat" className="h-10 w-10 md:h-12 md:w-12 flex-shrink-0" />
-            <h1 className="hidden md:block text-lg font-bold gradient-pulse-text whitespace-nowrap">ProveChat</h1>
+            <img src={pulsechatLogo} alt="MonX" className="h-10 w-10 md:h-12 md:w-12 flex-shrink-0" />
+            <h1 className="hidden md:block text-lg font-bold gradient-monad-text whitespace-nowrap">MonX</h1>
           </Link>
 
           <nav className="flex-1 space-y-1">
@@ -88,7 +88,7 @@ export function Layout({ children }: { children: React.ReactNode }) {
               <Search className="absolute left-4 top-1/2 -translate-y-1/2 h-5 w-5 text-muted-foreground" />
               <input
                 type="text"
-                placeholder="Search ProveChat"
+                placeholder="Search MonX"
                 className="w-full bg-muted/50 rounded-full py-3 pl-12 pr-4 focus:outline-none focus:ring-2 focus:ring-primary/20"
               />
             </div>
@@ -96,10 +96,10 @@ export function Layout({ children }: { children: React.ReactNode }) {
             <div className="glass-effect rounded-2xl p-4 space-y-4">
               <h2 className="text-xl font-bold">Trending</h2>
               <div className="space-y-3">
-                {['#PulseChain', '#DeFi', '#Web3', '#OnChain'].map((tag, i) => (
+                {['#Monad', '#DeFi', '#Web3', '#OnChain'].map((tag, i) => (
                   <div key={tag} className="py-2 hover:bg-muted/30 rounded-lg px-2 cursor-pointer transition-colors">
                     <p className="text-sm text-muted-foreground">Trending · {i + 1}</p>
-                    <p className="font-semibold gradient-pulse-text">{tag}</p>
+                    <p className="font-semibold gradient-monad-text">{tag}</p>
                     <p className="text-sm text-muted-foreground">{Math.floor(Math.random() * 10)}K posts</p>
                   </div>
                 ))}
