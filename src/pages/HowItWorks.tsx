@@ -5,8 +5,8 @@ export default function HowItWorks() {
   return (
     <div className="max-w-4xl mx-auto px-4 pt-16 md:pt-6 pb-8">
       <div className="border-b border-border/50 p-4 sticky top-16 md:top-0 bg-background/95 backdrop-blur z-10 mb-6">
-        <h1 className="text-3xl font-bold gradient-pulse-text">How ProveChat Works</h1>
-        <p className="text-muted-foreground mt-2">Your decentralized social network on PulseChain</p>
+        <h1 className="text-3xl font-bold gradient-monad-text">How MonX Works</h1>
+        <p className="text-muted-foreground mt-2">Your decentralized social network on Monad</p>
       </div>
 
       <div className="space-y-6">
@@ -14,13 +14,13 @@ export default function HowItWorks() {
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Shield className="h-5 w-5 text-pulse-cyan" />
-              Welcome to ProveChat
+              <Shield className="h-5 w-5 text-primary" />
+              Welcome to MonX
             </CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-foreground">
-              ProveChat is a fully decentralized social media platform built on the PulseChain blockchain. 
+              MonX is a fully decentralized social media platform built on the Monad blockchain. 
               Every post, comment, message, and interaction is permanently stored on-chain, ensuring true 
               ownership and transparency.
             </p>
@@ -35,25 +35,25 @@ export default function HowItWorks() {
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Home className="h-5 w-5 text-pulse-blue" />
+                <Home className="h-5 w-5 text-primary" />
                 Posts & Feed
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                Create posts with text and media. All posts are stored permanently on PulseChain.
+                Create posts with text and media. All posts are stored permanently on Monad.
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Share thoughts, images, and videos</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Browse latest posts from the community</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>View profiles and user statistics</span>
                 </div>
               </div>
@@ -63,7 +63,7 @@ export default function HowItWorks() {
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <MessageSquare className="h-5 w-5 text-pulse-purple" />
+                <MessageSquare className="h-5 w-5 text-accent" />
                 Comments
               </CardTitle>
             </CardHeader>
@@ -73,15 +73,15 @@ export default function HowItWorks() {
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Reply to any post with your thoughts</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>All comments stored on-chain</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Fee: 0.01 USDC per comment</span>
                 </div>
               </div>
@@ -91,7 +91,7 @@ export default function HowItWorks() {
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Heart className="h-5 w-5 text-pulse-magenta" />
+                <Heart className="h-5 w-5 text-destructive" />
                 Likes
               </CardTitle>
             </CardHeader>
@@ -101,15 +101,15 @@ export default function HowItWorks() {
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Like posts instantly with no fees</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>UI-only feature for quick interactions</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>No blockchain transaction required</span>
                 </div>
               </div>
@@ -119,7 +119,7 @@ export default function HowItWorks() {
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Repeat2 className="h-5 w-5 text-pulse-blue" />
+                <Repeat2 className="h-5 w-5 text-primary" />
                 Reposts & Quotes
               </CardTitle>
             </CardHeader>
@@ -129,15 +129,15 @@ export default function HowItWorks() {
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span><strong>Simple Repost:</strong> Free, UI-only sharing</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span><strong>Quote:</strong> Add your comment (0.01 USDC)</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Quotes create new on-chain posts</span>
                 </div>
               </div>
@@ -147,25 +147,25 @@ export default function HowItWorks() {
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <Share2 className="h-5 w-5 text-pulse-cyan" />
+                <Share2 className="h-5 w-5 text-accent" />
                 Share Posts
               </CardTitle>
             </CardHeader>
             <CardContent>
               <p className="text-sm text-muted-foreground mb-3">
-                Share posts outside ProveChat with direct links to specific content.
+                Share posts outside MonX with direct links to specific content.
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Generate shareable links to posts</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Copy link or use native share</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Completely free to share</span>
                 </div>
               </div>
@@ -175,7 +175,7 @@ export default function HowItWorks() {
           <Card className="border-border/50">
             <CardHeader>
               <CardTitle className="flex items-center gap-2 text-lg">
-                <DollarSign className="h-5 w-5 text-pulse-purple" />
+                <DollarSign className="h-5 w-5 text-primary" />
                 USDC Tips
               </CardTitle>
             </CardHeader>
@@ -185,15 +185,15 @@ export default function HowItWorks() {
               </p>
               <div className="space-y-2 text-sm">
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Tip any amount of USDC to post authors</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
-                  <span>Platform fee: 0.01 USDC per tip</span>
+                  <span className="text-primary">•</span>
+                  <span>Platform fee: 1% per tip</span>
                 </div>
                 <div className="flex items-start gap-2">
-                  <span className="text-pulse-cyan">•</span>
+                  <span className="text-primary">•</span>
                   <span>Direct wallet-to-wallet transfers</span>
                 </div>
               </div>
@@ -205,7 +205,7 @@ export default function HowItWorks() {
         <Card className="border-border/50 bg-muted/20">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <Coins className="h-5 w-5 text-pulse-cyan" />
+              <Coins className="h-5 w-5 text-primary" />
               Platform Fees
             </CardTitle>
             <CardDescription>
@@ -214,30 +214,30 @@ export default function HowItWorks() {
           </CardHeader>
           <CardContent className="space-y-4">
             <p className="text-sm">
-              ProveChat charges a small fee of <strong className="text-pulse-cyan">0.01 USDC</strong> for 
+              MonX charges a small fee of <strong className="text-primary">0.01 USDC</strong> for 
               most on-chain actions to cover blockchain transaction costs and maintain the platform.
             </p>
             
             <div className="space-y-3">
               <div className="flex justify-between items-center p-3 bg-background rounded-lg">
                 <span className="text-sm font-medium">Creating Posts</span>
-                <span className="text-sm text-pulse-cyan">0.01 USDC</span>
+                <span className="text-sm text-primary">0.02 USDC</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-background rounded-lg">
                 <span className="text-sm font-medium">Comments</span>
-                <span className="text-sm text-pulse-cyan">0.01 USDC</span>
+                <span className="text-sm text-primary">0.01 USDC</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-background rounded-lg">
                 <span className="text-sm font-medium">Quote Posts</span>
-                <span className="text-sm text-pulse-cyan">0.01 USDC</span>
+                <span className="text-sm text-primary">0.01 USDC</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-background rounded-lg">
                 <span className="text-sm font-medium">Direct Messages</span>
-                <span className="text-sm text-pulse-cyan">0.01 USDC</span>
+                <span className="text-sm text-primary">0.01 USDC</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-background rounded-lg">
-                <span className="text-sm font-medium">PLS Transfers</span>
-                <span className="text-sm text-pulse-cyan">0.01 USDC</span>
+                <span className="text-sm font-medium">USDC Tips</span>
+                <span className="text-sm text-primary">1% fee</span>
               </div>
               <div className="flex justify-between items-center p-3 bg-green-500/10 border border-green-500/20 rounded-lg">
                 <span className="text-sm font-medium">Likes & Simple Reposts</span>
@@ -250,7 +250,7 @@ export default function HowItWorks() {
             </div>
 
             <p className="text-xs text-muted-foreground mt-4">
-              💡 <strong>Tip:</strong> You'll need to approve USDC spending to the ProveChat contract 
+              💡 <strong>Tip:</strong> You'll need to approve USDC spending to the MonX contract 
               before your first paid action. This is a one-time approval per wallet.
             </p>
           </CardContent>
@@ -260,7 +260,7 @@ export default function HowItWorks() {
         <Card className="border-border/50">
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
-              <TrendingUp className="h-5 w-5 text-pulse-magenta" />
+              <TrendingUp className="h-5 w-5 text-primary" />
               Leaderboard & Analytics
             </CardTitle>
           </CardHeader>
@@ -270,15 +270,15 @@ export default function HowItWorks() {
             </p>
             <div className="space-y-2 text-sm">
               <div className="flex items-start gap-2">
-                <span className="text-pulse-cyan">•</span>
+                <span className="text-primary">•</span>
                 <span><strong>Leaderboard:</strong> Users ranked by total fees paid (activity level)</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-pulse-cyan">•</span>
+                <span className="text-primary">•</span>
                 <span><strong>Analytics:</strong> View global stats on posts, users, comments, and messages</span>
               </div>
               <div className="flex items-start gap-2">
-                <span className="text-pulse-cyan">•</span>
+                <span className="text-primary">•</span>
                 <span><strong>Profile Stats:</strong> Track your own posts, comments, tips sent/received</span>
               </div>
             </div>
@@ -286,38 +286,38 @@ export default function HowItWorks() {
         </Card>
 
         {/* Getting Started */}
-        <Card className="border-border/50 bg-gradient-to-br from-pulse-cyan/5 to-pulse-purple/5">
+        <Card className="border-border/50 bg-gradient-to-br from-primary/5 to-accent/5">
           <CardHeader>
             <CardTitle>Getting Started</CardTitle>
           </CardHeader>
           <CardContent className="space-y-4">
             <div className="space-y-3">
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pulse-cyan/20 flex items-center justify-center text-pulse-cyan font-bold">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                   1
                 </div>
                 <div>
                   <h4 className="font-medium">Connect Your Wallet</h4>
                   <p className="text-sm text-muted-foreground">
-                    Make sure you're on PulseChain network (Chain ID: 369) and connect your Web3 wallet.
+                    Make sure you're on Monad network (Chain ID: 143) and connect your Web3 wallet.
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pulse-blue/20 flex items-center justify-center text-pulse-blue font-bold">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-primary/20 flex items-center justify-center text-primary font-bold">
                   2
                 </div>
                 <div>
                   <h4 className="font-medium">Get USDC</h4>
                   <p className="text-sm text-muted-foreground">
-                    Acquire USDC on PulseChain to pay for on-chain actions. You'll need a small amount to get started.
+                    Acquire USDC on Monad to pay for on-chain actions. You'll need a small amount to get started.
                   </p>
                 </div>
               </div>
 
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pulse-magenta/20 flex items-center justify-center text-pulse-magenta font-bold">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">
                   3
                 </div>
                 <div>
@@ -329,7 +329,7 @@ export default function HowItWorks() {
               </div>
 
               <div className="flex gap-3">
-                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-pulse-purple/20 flex items-center justify-center text-pulse-purple font-bold">
+                <div className="flex-shrink-0 w-8 h-8 rounded-full bg-accent/20 flex items-center justify-center text-accent font-bold">
                   4
                 </div>
                 <div>
@@ -351,7 +351,7 @@ export default function HowItWorks() {
               <div className="space-y-2">
                 <h4 className="font-semibold text-yellow-500">Important: On-Chain Transparency</h4>
                 <p className="text-sm text-muted-foreground">
-                  All data on ProveChat is stored on the public PulseChain blockchain. This means posts, 
+                  All data on MonX is stored on the public Monad blockchain. This means posts, 
                   comments, and direct messages are publicly readable by anyone. "Private" messages are only 
                   private at the UI level - they exist on-chain and can be viewed by anyone with blockchain access.
                 </p>

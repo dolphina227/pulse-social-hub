@@ -8,50 +8,51 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* PulseChain Dark Theme - Always Dark Mode */
-    --background: 240 10% 4%;
-    --foreground: 210 20% 98%;
+    /* MonX Dark Theme - Monad Purple Vibes */
+    --background: 240 12% 4%;
+    --foreground: 280 15% 98%;
 
-    --card: 240 8% 8%;
-    --card-foreground: 210 20% 98%;
+    --card: 260 10% 8%;
+    --card-foreground: 280 15% 98%;
 
-    --popover: 240 10% 6%;
-    --popover-foreground: 210 20% 98%;
+    --popover: 260 12% 6%;
+    --popover-foreground: 280 15% 98%;
 
-    /* PulseChain Gradient Colors */
-    --pulse-cyan: 190 100% 50%;
-    --pulse-blue: 215 100% 62%;
-    --pulse-magenta: 340 82% 62%;
-    --pulse-purple: 265 60% 60%;
+    /* Monad Purple Colors */
+    --monad-purple: 270 80% 60%;
+    --monad-purple-light: 280 75% 70%;
+    --monad-purple-dark: 265 85% 50%;
+    --monad-glow: 275 90% 65%;
 
-    --primary: 190 100% 50%;
-    --primary-foreground: 240 10% 4%;
+    --primary: 270 80% 60%;
+    --primary-foreground: 240 12% 4%;
 
-    --secondary: 240 6% 14%;
-    --secondary-foreground: 210 20% 98%;
+    --secondary: 260 8% 14%;
+    --secondary-foreground: 280 15% 98%;
 
-    --muted: 240 6% 12%;
-    --muted-foreground: 215 15% 65%;
+    --muted: 260 8% 12%;
+    --muted-foreground: 270 12% 65%;
 
-    --accent: 265 60% 60%;
-    --accent-foreground: 210 20% 98%;
+    --accent: 280 75% 70%;
+    --accent-foreground: 240 12% 4%;
 
     --destructive: 0 72% 51%;
-    --destructive-foreground: 210 20% 98%;
+    --destructive-foreground: 280 15% 98%;
 
-    --border: 240 6% 16%;
-    --input: 240 6% 14%;
-    --ring: 190 100% 50%;
+    --border: 260 8% 16%;
+    --input: 260 8% 14%;
+    --ring: 270 80% 60%;
 
     --radius: 0.75rem;
 
     /* Gradients */
-    --gradient-pulse: linear-gradient(135deg, hsl(var(--pulse-cyan)) 0%, hsl(var(--pulse-blue)) 33%, hsl(var(--pulse-magenta)) 66%, hsl(var(--pulse-purple)) 100%);
-    --gradient-pulse-subtle: linear-gradient(135deg, hsl(var(--pulse-cyan) / 0.1) 0%, hsl(var(--pulse-purple) / 0.1) 100%);
+    --gradient-monad: linear-gradient(135deg, hsl(270 80% 60%) 0%, hsl(280 75% 70%) 100%);
+    --gradient-monad-glow: linear-gradient(135deg, hsl(265 85% 50%) 0%, hsl(275 90% 65%) 50%, hsl(280 75% 70%) 100%);
+    --gradient-monad-subtle: linear-gradient(135deg, hsl(270 80% 60% / 0.1) 0%, hsl(280 75% 70% / 0.1) 100%);
     
     /* Shadows & Effects */
-    --shadow-glow: 0 0 40px hsl(var(--pulse-cyan) / 0.3);
-    --shadow-card: 0 4px 20px hsl(240 10% 0% / 0.5);
+    --shadow-glow: 0 0 50px hsl(270 80% 60% / 0.4);
+    --shadow-card: 0 4px 20px hsl(260 12% 0% / 0.6);
   }
 }
 
@@ -99,18 +100,22 @@ All colors MUST be HSL.
 }
 
 @layer utilities {
-  .gradient-pulse {
-    background: var(--gradient-pulse);
+  .gradient-monad {
+    background: var(--gradient-monad);
   }
 
-  .gradient-pulse-text {
-    background: var(--gradient-pulse);
+  .gradient-monad-glow {
+    background: var(--gradient-monad-glow);
+  }
+
+  .gradient-monad-text {
+    background: var(--gradient-monad-glow);
     -webkit-background-clip: text;
     -webkit-text-fill-color: transparent;
     background-clip: text;
   }
 
-  .glow-pulse {
+  .glow-monad {
     box-shadow: var(--shadow-glow);
   }
 
